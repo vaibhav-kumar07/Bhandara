@@ -5,6 +5,17 @@ import { generateToken, setAuthCookie } from '@/lib/auth/jwt';
 
 export async function createAdmin({username, pin}: {username: string, pin: string}) {
     try {
+        // Check if current admin is authenticated
+        const { getCurrentAdmin } = await import('@/lib/auth/jwt')
+        const currentAdmin = await getCurrentAdmin()
+        
+        if (!currentAdmin) {
+            return {
+                success: false,
+                message: 'Authentication required. Please login first.'
+            }
+        }
+        
         await connectToDatabase()
         
         const admin = await AdminService.createAdmin({
@@ -15,7 +26,7 @@ export async function createAdmin({username, pin}: {username: string, pin: strin
         return {
             success: true,
             adminId: admin.id,
-            message: 'Admin created successfully'
+            message: 'Admin added successfully'
         }
     } catch (error: any) {
         console.error('Error creating admin:', error)

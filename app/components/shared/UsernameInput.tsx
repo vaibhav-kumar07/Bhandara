@@ -7,6 +7,7 @@ interface UsernameInputProps {
   placeholder?: string
   required?: boolean
   autoFocus?: boolean
+  disabled?: boolean
 }
 
 export default function UsernameInput({
@@ -14,7 +15,8 @@ export default function UsernameInput({
   onChange,
   placeholder = 'Enter username',
   required = true,
-  autoFocus = false
+  autoFocus = false,
+  disabled = false
 }: UsernameInputProps) {
   return (
     <div>
@@ -29,7 +31,8 @@ export default function UsernameInput({
         onChange={(e) => onChange(e.target.value)}
         required={required}
         autoFocus={autoFocus}
-        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all uppercase"
+        disabled={disabled}
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all uppercase disabled:bg-gray-100 disabled:cursor-not-allowed"
         style={{ textTransform: 'uppercase' }}
         placeholder={placeholder}
         autoComplete="username"
