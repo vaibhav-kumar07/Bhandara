@@ -32,7 +32,10 @@ export async function updateDonor({ id, donorName, fatherName }: { id: string, d
         
         const updateData: { donorName?: string; fatherName?: string } = {}
         if (donorName !== undefined) updateData.donorName = donorName
-        if (fatherName !== undefined) updateData.fatherName = fatherName
+        // Handle empty string as undefined to allow clearing father name
+        if (fatherName !== undefined) {
+            updateData.fatherName = fatherName === '' || fatherName === null ? undefined : fatherName
+        }
         
         const donor = await DonorService.updateDonor(id, updateData)
         

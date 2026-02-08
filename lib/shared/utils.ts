@@ -17,8 +17,19 @@ export function validateAmount(amount: number): boolean {
 /**
  * Check if a bhandara is locked (date is in the past)
  * Compares the bhandara date with current date (at start of day)
+ * Only applies if ENABLE_BHANDARA_LOCK environment variable is set to 'true'
+ * If the env variable is false or not set, bhandara will never be locked
  */
 export function isBhandaraLocked(bhandaraDate: string | Date): boolean {
+  // Check if locking is enabled via environment variable
+  const isLockingEnabled = process.env.ENABLE_BHANDARA_LOCK === 'true'
+  
+  // If locking is disabled, always return false (not locked)
+  if (!isLockingEnabled) {
+    return false
+  }
+  
+  // If locking is enabled, check if date is in the past
   const date = typeof bhandaraDate === 'string' ? new Date(bhandaraDate) : bhandaraDate
   const today = new Date()
   today.setHours(0, 0, 0, 0)

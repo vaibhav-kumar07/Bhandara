@@ -72,14 +72,26 @@ export async function bulkUploadDonations(
     // Prepare donor map and bulk operations
     const donorMap = new Map<string, ObjectId>()
     const donorBulkOps: any[] = []
-    const uniqueDonors = new Map<string, { firstName: string; lastName: string }>()
+    const uniqueDonors = new Map<string, { firstName: string; lastName: string; rowNumbers: number[] }>()
 
     // Collect unique donors (handle empty lastName as optional)
-    // Use lowercase for case-insensitive matching
+    // Use a special separator to avoid conflicts with underscores in names
+    // Using ||| as separator since it's unlikely to appear in names
     for (const row of donorData) {
-      const key = `${row.firstName.toLowerCase()}_${(row.lastName || '').toLowerCase()}`
+      // Normalize both firstName and lastName for consistent key generation
+      const normalizedFirstName = (row.firstName || '').trim()
+      const normalizedLastName = (row.lastName || '').trim()
+      const key = `${normalizedFirstName.toLowerCase()}|||${normalizedLastName.toLowerCase()}`
+      
       if (!uniqueDonors.has(key)) {
-        uniqueDonors.set(key, { firstName: row.firstName, lastName: row.lastName || '' })
+        uniqueDonors.set(key, { 
+          firstName: normalizedFirstName, // Store normalized
+          lastName: normalizedLastName, // Store normalized (empty string if not provided)
+          rowNumbers: [row.rowNumber] 
+        })
+      } else {
+        // Track all row numbers for this donor
+        uniqueDonors.get(key)!.rowNumbers.push(row.rowNumber)
       }
     }
 
@@ -87,12 +99,14 @@ export async function bulkUploadDonations(
     if (uniqueDonors.size > 0) {
       try {
         const donorQueries = Array.from(uniqueDonors.values()).map(donor => {
-          if (donor.lastName) {
+          // Check if lastName is provided and not empty (after trimming)
+          if (donor.lastName && donor.lastName.trim().length > 0) {
             return {
               donorName: donor.firstName,
               fatherName: donor.lastName
             }
           } else {
+            // Match donors without father name (empty, null, or missing)
             return {
               donorName: donor.firstName,
               $or: [
@@ -109,8 +123,11 @@ export async function bulkUploadDonations(
         }).toArray()
 
         // Map existing donors (use lowercase for case-insensitive matching)
+        // Use ||| as separator to match the key format
+        // Normalize fatherName consistently (handle null, undefined, empty string)
         existingDonors.forEach(donor => {
-          const key = `${(donor.donorName || '').toLowerCase()}_${(donor.fatherName || '').toLowerCase()}`
+          const normalizedFatherName = (donor.fatherName || '').trim().toLowerCase()
+          const key = `${(donor.donorName || '').toLowerCase()}|||${normalizedFatherName}`
           donorMap.set(key, donor._id)
         })
       } catch (findError: any) {
@@ -128,15 +145,18 @@ export async function bulkUploadDonations(
           createdAt: new Date()
         }
         
-        if (donor.lastName) {
+        // Only set fatherName if lastName is provided and not empty
+        if (donor.lastName && donor.lastName.trim().length > 0) {
           filter.fatherName = donor.lastName
           setOnInsert.fatherName = donor.lastName
         } else {
+          // Match donors without father name (empty, null, or missing)
           filter.$or = [
             { fatherName: { $exists: false } },
             { fatherName: '' },
             { fatherName: null }
           ]
+          // Don't set fatherName in setOnInsert - it will be undefined/missing (correct)
         }
         
         donorBulkOps.push({
@@ -165,7 +185,8 @@ export async function bulkUploadDonations(
             }).toArray()
             
             newDonors.forEach(donor => {
-              const key = `${(donor.donorName || '').toLowerCase()}_${(donor.fatherName || '').toLowerCase()}`
+              const normalizedFatherName = (donor.fatherName || '').trim().toLowerCase()
+              const key = `${(donor.donorName || '').toLowerCase()}|||${normalizedFatherName}`
               donorMap.set(key, donor._id)
             })
           }
@@ -177,34 +198,51 @@ export async function bulkUploadDonations(
     }
 
     // Final fetch to ensure all donors are in the map
+    // This is critical - it catches donors that were matched by bulkWrite but not in initial query
+    // and also ensures we have all unique donors mapped before processing donations
     if (uniqueDonors.size > 0) {
       try {
-        const donorQueries = Array.from(uniqueDonors.values()).map(donor => {
-          if (donor.lastName) {
-            return {
-              donorName: donor.firstName,
-              fatherName: donor.lastName
-            }
-          } else {
-            return {
-              donorName: donor.firstName,
-              $or: [
-                { fatherName: { $exists: false } },
-                { fatherName: '' },
-                { fatherName: null }
-              ]
-            }
-          }
-        })
+        // Get all unique donors that aren't in donorMap yet
+        const missingDonors = Array.from(uniqueDonors.entries())
+          .filter(([key]) => !donorMap.has(key))
+          .map(([, donor]) => donor)
         
-        const allDonors = await donorsCollection.find({
-          $or: donorQueries
-        }).toArray()
+        if (missingDonors.length > 0) {
+          const donorQueries = missingDonors.map(donor => {
+            // Check if lastName is provided and not empty (after trimming)
+            if (donor.lastName && donor.lastName.trim().length > 0) {
+              return {
+                donorName: donor.firstName,
+                fatherName: donor.lastName
+              }
+            } else {
+              // Match donors without father name (empty, null, or missing)
+              return {
+                donorName: donor.firstName,
+                $or: [
+                  { fatherName: { $exists: false } },
+                  { fatherName: '' },
+                  { fatherName: null }
+                ]
+              }
+            }
+          })
+          
+          if (donorQueries.length > 0) {
+            const allDonors = await donorsCollection.find({
+              $or: donorQueries
+            }).toArray()
 
-        allDonors.forEach(donor => {
-          const key = `${(donor.donorName || '').toLowerCase()}_${(donor.fatherName || '').toLowerCase()}`
-          donorMap.set(key, donor._id)
-        })
+            allDonors.forEach(donor => {
+              // Normalize fatherName for key matching (handle null, undefined, empty string)
+              const normalizedFatherName = (donor.fatherName || '').trim().toLowerCase()
+              const key = `${(donor.donorName || '').toLowerCase()}|||${normalizedFatherName}`
+              if (!donorMap.has(key)) {
+                donorMap.set(key, donor._id)
+              }
+            })
+          }
+        }
       } catch (findError: any) {
         console.error('Error in final donor fetch:', findError)
       }
@@ -220,12 +258,24 @@ export async function bulkUploadDonations(
     let donationSuccessCount = 0
 
     for (const row of donorData) {
-      // Use lowercase key for case-insensitive matching
-      const key = `${row.firstName.toLowerCase()}_${(row.lastName || '').toLowerCase()}`
+      // Normalize the same way we did when creating uniqueDonors
+      const normalizedFirstName = (row.firstName || '').trim().toLowerCase()
+      const normalizedLastName = (row.lastName || '').trim().toLowerCase()
+      const key = `${normalizedFirstName}|||${normalizedLastName}`
       const donorId = donorMap.get(key)
       
       if (!donorId) {
-        errors.push(`Row ${row.rowNumber}: Failed to find or create donor`)
+        // This should not happen if all donors were properly created and mapped
+        // Log detailed error for debugging
+        const originalKey = `${row.firstName}|||${row.lastName || ''}`
+        errors.push(`Row ${row.rowNumber}: Failed to find or create donor "${row.firstName} ${row.lastName || '(no last name)'}" (normalized key: ${key}, original: ${originalKey})`)
+        console.error(`Donor lookup failed for row ${row.rowNumber}:`, {
+          firstName: row.firstName,
+          lastName: row.lastName,
+          normalizedKey: key,
+          donorMapSize: donorMap.size,
+          uniqueDonorsSize: uniqueDonors.size
+        })
         continue
       }
 
@@ -233,6 +283,7 @@ export async function bulkUploadDonations(
       donorSuccessCount++
 
       // Skip donation creation if amount is 0 (donor is still created)
+      // Amount 0 is valid for tracking donors without donations
       if (row.amount === 0) {
         continue
       }
@@ -273,16 +324,52 @@ export async function bulkUploadDonations(
     const totalSuccess = donorSuccessCount
     const totalDonations = donationSuccessCount
     const donorsWithoutDonations = donorSuccessCount - donationSuccessCount
+    const uniqueDonorCount = uniqueDonors.size
+    const totalRows = donorData.length
+    const duplicateCount = totalRows - uniqueDonorCount
 
-    let message = `Processed ${totalSuccess} donor${totalSuccess !== 1 ? 's' : ''} successfully`
+    // Build a clear message explaining the results
+    let message = `Processed ${totalRows} row${totalRows !== 1 ? 's' : ''}`
+    
+    if (duplicateCount > 0) {
+      message += ` (${duplicateCount} duplicate${duplicateCount !== 1 ? 's' : ''} found)`
+    }
+    
+    message += `, created ${uniqueDonorCount} unique donor${uniqueDonorCount !== 1 ? 's' : ''}`
+    
+    if (totalSuccess !== uniqueDonorCount) {
+      message += ` (${totalSuccess} row${totalSuccess !== 1 ? 's' : ''} processed)`
+    }
+    
     if (totalDonations > 0) {
-      message += `, ${totalDonations} with donation${totalDonations !== 1 ? 's' : ''}`
+      message += `, ${totalDonations} donation${totalDonations !== 1 ? 's' : ''} created`
     }
+    
     if (donorsWithoutDonations > 0) {
-      message += `, ${donorsWithoutDonations} without donation${donorsWithoutDonations !== 1 ? 's' : ''} (amount 0)`
+      message += `, ${donorsWithoutDonations} donor${donorsWithoutDonations !== 1 ? 's' : ''} without donation${donorsWithoutDonations !== 1 ? 's' : ''} (amount 0)`
     }
+    
     if (errors.length > 0) {
-      message += `, ${errors.length} failed`
+      message += `, ${errors.length} error${errors.length !== 1 ? 's' : ''}`
+    }
+    
+    // Log detailed info for debugging
+    if (duplicateCount > 0 || totalRows !== totalSuccess || uniqueDonorCount !== totalSuccess) {
+      console.log(`Upload stats: ${totalRows} rows, ${uniqueDonorCount} unique donors, ${duplicateCount} duplicates, ${totalSuccess} processed, ${errors.length} errors`)
+      console.log(`DonorMap size: ${donorMap.size}, UniqueDonors size: ${uniqueDonors.size}`)
+      
+      // Log duplicate donors for debugging
+      if (duplicateCount > 0) {
+        const duplicates = Array.from(uniqueDonors.entries())
+          .filter(([, donor]) => donor.rowNumbers.length > 1)
+          .map(([key, donor]) => ({
+            key,
+            name: `${donor.firstName} ${donor.lastName || '(no last name)'}`,
+            rows: donor.rowNumbers,
+            count: donor.rowNumbers.length
+          }))
+        console.log('Duplicate donors found:', duplicates)
+      }
     }
 
     return {

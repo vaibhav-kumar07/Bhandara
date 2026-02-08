@@ -13,17 +13,17 @@ interface CreateBhandaraModalProps {
 export default function CreateBhandaraModal({ onClose }: CreateBhandaraModalProps) {
   const router = useRouter()
   const today = new Date().toISOString().split('T')[0]
-  
+
   // Generate a good default name with date
   const getDefaultName = () => {
     const date = new Date()
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                       'July', 'August', 'September', 'October', 'November', 'December']
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December']
     const month = monthNames[date.getMonth()]
     const year = date.getFullYear()
     return `Bhandara ${month} ${year}`
   }
-  
+
   const [formData, setFormData] = useState({
     name: getDefaultName(),
     date: today
@@ -42,13 +42,13 @@ export default function CreateBhandaraModal({ onClose }: CreateBhandaraModalProp
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
+
     try {
       const result = await createBhandara({
         name: formData.name.trim(),
         date: formData.date
       })
-      
+
       if (result.success && result.bhandaraId) {
         toastSuccess('Bhandara created successfully! Redirecting...')
         setIsSubmitting(false)
@@ -83,11 +83,11 @@ export default function CreateBhandaraModal({ onClose }: CreateBhandaraModalProp
   }
 
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent bg-opacity-50 backdrop-blur-sm" 
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent bg-opacity-50 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
-      <div 
+      <div
         className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto hide-scrollbar [scrollbar-width:none] [-ms-overflow-style:none]"
         onClick={(e) => e.stopPropagation()}
       >
@@ -112,8 +112,8 @@ export default function CreateBhandaraModal({ onClose }: CreateBhandaraModalProp
         </div>
 
         {/* Form */}
-        <form 
-          onSubmit={handleSubmit} 
+        <form
+          onSubmit={handleSubmit}
           className="p-4 sm:p-6 space-y-5"
         >
           {/* Bhandara Name */}
@@ -148,7 +148,6 @@ export default function CreateBhandaraModal({ onClose }: CreateBhandaraModalProp
               value={formData.date}
               onChange={handleChange}
               required
-              min={today}
               disabled={isSubmitting || isRedirecting}
               className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-base disabled:bg-gray-100 disabled:cursor-not-allowed"
             />

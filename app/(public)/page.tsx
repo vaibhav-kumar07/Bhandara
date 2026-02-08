@@ -27,23 +27,27 @@ export default async function PublicPage() {
     <div className="h-full bg-gradient-to-br from-gray-50 to-gray-100 hide-scrollbar">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 space-y-3 sm:space-y-4">
         {/* Overall Stats */}
-        {stats && stats.overall && (
-          <div className={`grid grid-cols-2 gap-3 sm:gap-4 ${admin ? 'md:grid-cols-4' : 'md:grid-cols-2'}`}>
-            <StatsCard
-              title="Total Donations"
-              value={(stats.overall.totalCollectedAmount || 0) + (stats.overall.totalPendingAmount || 0)}
-              color="green"
-              icon={<DollarSign className="w-5 h-5 sm:w-6 sm:h-6" />}
-            />
-            <StatsCard
-              title="Total Donors"
-              value={stats.overall.totalDonors || 0}
-              color="blue"
-              icon={<Users className="w-5 h-5 sm:w-6 sm:h-6" />}
-            />
-            {admin && <AdminQuickActions admin={admin} />}
-          </div>
-        )}
+
+        <div className={`grid grid-cols-2 gap-3 sm:gap-4 ${admin ? 'md:grid-cols-4' : 'md:grid-cols-2'}`}>
+          {admin && <AdminQuickActions admin={admin} />}
+          {stats && stats.overall && (
+            <>
+              <StatsCard
+                title="Total Donations"
+                value={(stats.overall.totalCollectedAmount || 0) + (stats.overall.totalPendingAmount || 0)}
+                color="green"
+                icon={<DollarSign className="w-5 h-5 sm:w-6 sm:h-6" />}
+              />
+              <StatsCard
+                title="Total Donors"
+                value={stats.overall.totalDonors || 0}
+                color="blue"
+                icon={<Users className="w-5 h-5 sm:w-6 sm:h-6" />}
+              />
+            </>
+          )}
+        </div>
+
 
         {/* Bhandaras List */}
         <div>

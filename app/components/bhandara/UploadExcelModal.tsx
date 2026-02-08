@@ -99,12 +99,18 @@ export default function UploadExcelModal({ bhandaraId, onClose }: UploadExcelMod
             continue
           }
 
-          // Last Name (Father Name) is optional
-          const sanitizedLastName = lastName ? sanitizeString(lastName) : ''
-          if (lastName && sanitizedLastName.length < 2) {
-            errors.push(`Row ${rowNumber}: Last Name must be at least 2 characters if provided`)
-            continue
+          // Last Name (Father Name) is optional - allow empty
+          // Only validate if lastName is provided and not empty
+          let sanitizedLastName = ''
+          if (lastName && lastName.trim().length > 0) {
+            sanitizedLastName = sanitizeString(lastName)
+            // Only validate length if lastName was provided and is not empty
+            if (sanitizedLastName.length < 2) {
+              errors.push(`Row ${rowNumber}: Last Name must be at least 2 characters if provided`)
+              continue
+            }
           }
+          // If lastName is empty or whitespace, sanitizedLastName will be empty string (valid)
 
           // Extract and validate amount - allow 0
           // Important: Check for undefined/null explicitly, not using || because 0 is falsy
