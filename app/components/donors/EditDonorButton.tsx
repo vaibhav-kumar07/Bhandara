@@ -21,12 +21,12 @@ export default function EditDonorButton({ donor }: EditDonorButtonProps) {
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm hover:shadow-md"
+        className="inline-flex items-center gap-2 px-2 py-1.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors shadow-sm hover:shadow-md"
         title="Edit donor"
         type="button"
       >
-        <Edit2 className="w-4 h-4" />
-        <span>Edit</span>
+        <Edit2 className="w-3 h-3 sm:w-4 sm:h-4" />
+        <span className="text-sm sm:text-base hidden sm:block">Edit</span>
       </button>
 
       {isModalOpen && (

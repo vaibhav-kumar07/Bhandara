@@ -104,7 +104,7 @@ export default function DeleteBhandaraModal({
                     Warning: This action cannot be undone
                   </p>
                   <p className="text-sm text-yellow-700 mt-1">
-                    Are you sure you want to delete <span className="font-semibold">"{bhandaraName}"</span>? 
+                    Are you sure you want to delete <span className="font-semibold capitalize">"{bhandaraName}"</span>? 
                     This will permanently remove the bhandara from the system.
                   </p>
                 </div>

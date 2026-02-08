@@ -33,18 +33,18 @@ export default function StatsCard({
   }
 
   return (
-    <div className={`p-4 rounded-lg border ${colorClasses[color]}`}>
+    <div className={`p-3 sm:p-4 rounded-lg border ${colorClasses[color]}`}>
       <div className="flex items-center rounded-lg">
         {icon && (
-          <div className="flex-shrink-0 mr-3">
+          <div className="flex-shrink-0 mr-2 sm:mr-3">
             {icon}
           </div>
         )}
-        <div className="flex-1">
-          <p className="text-sm font-medium opacity-75">{title}</p>
-          <p className="text-2xl font-bold">{formatValue(value)}</p>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs sm:text-sm font-medium opacity-75 truncate">{title}</p>
+          <p className="text-lg sm:text-xl md:text-2xl font-bold break-words">{formatValue(value)}</p>
           {subtitle && (
-            <p className="text-xs opacity-60 mt-1">{subtitle}</p>
+            <p className="text-xs opacity-60 mt-1 truncate">{subtitle}</p>
           )}
         </div>
       </div>

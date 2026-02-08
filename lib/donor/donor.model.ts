@@ -26,26 +26,49 @@ export class DonorModel {
 
   static async findAll(): Promise<Donor[]> {
     const collection = this.getCollection()
-    return await collection.find({}).sort({ donorName: 1, wifeName: 1 }).toArray()
+    return await collection.find({}).sort({ donorName: 1 }).toArray()
   }
 
-  static async findByNameCombination(donorName: string, wifeName: string): Promise<Donor[]> {
+  static async findByNameCombination(donorName: string, fatherName?: string): Promise<Donor[]> {
     const collection = this.getCollection()
-    return await collection.find({ 
-      donorName: { $regex: new RegExp(donorName, 'i') },
-      wifeName: { $regex: new RegExp(wifeName, 'i') }
-    }).toArray()
+    const query: any = {
+      donorName: { $regex: new RegExp(donorName, 'i') }
+    }
+    if (fatherName) {
+      query.fatherName = { $regex: new RegExp(fatherName, 'i') }
+    } else {
+      query.$or = [
+        { fatherName: { $exists: false } },
+        { fatherName: '' },
+        { fatherName: null }
+      ]
+    }
+    return await collection.find(query).toArray()
   }
 
-  static async update(id: string, updates: { donorName?: string; wifeName?: string }): Promise<boolean> {
+  static async update(id: string, updates: { donorName?: string; fatherName?: string }): Promise<boolean> {
     const collection = this.getCollection()
-    const updateData: any = {}
-    if (updates.donorName !== undefined) updateData.donorName = updates.donorName
-    if (updates.wifeName !== undefined) updateData.wifeName = updates.wifeName
+    const setData: any = {}
+    const unsetData: any = {}
+    
+    if (updates.donorName !== undefined) setData.donorName = updates.donorName
+    if (updates.fatherName !== undefined) {
+      if (updates.fatherName === null || updates.fatherName === '') {
+        unsetData.fatherName = ''
+      } else {
+        setData.fatherName = updates.fatherName
+      }
+    }
+    
+    const updateOps: any = {}
+    if (Object.keys(setData).length > 0) updateOps.$set = setData
+    if (Object.keys(unsetData).length > 0) updateOps.$unset = unsetData
+    
+    if (Object.keys(updateOps).length === 0) return false
     
     const result = await collection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: updateData }
+      updateOps
     )
     return result.modifiedCount > 0
   }

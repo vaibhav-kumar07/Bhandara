@@ -3,13 +3,13 @@ import { connectToDatabase } from "@/lib/shared/db"
 import { DonorService } from "@/lib/donor/donor.service"
 import { DonationService } from "@/lib/donation/donation.service"
 
-export async function createDonor({donorName, wifeName}: {donorName: string, wifeName: string}) {
+export async function createDonor({donorName, fatherName}: {donorName: string, fatherName?: string}) {
     try {
         await connectToDatabase()
         
         const donor = await DonorService.createDonor({
             donorName,
-            wifeName
+            fatherName
         })
         
         return {
@@ -26,13 +26,13 @@ export async function createDonor({donorName, wifeName}: {donorName: string, wif
     }
 }
 
-export async function updateDonor({ id, donorName, wifeName }: { id: string, donorName?: string, wifeName?: string }) {
+export async function updateDonor({ id, donorName, fatherName }: { id: string, donorName?: string, fatherName?: string }) {
     try {
         await connectToDatabase()
         
-        const updateData: { donorName?: string; wifeName?: string } = {}
+        const updateData: { donorName?: string; fatherName?: string } = {}
         if (donorName !== undefined) updateData.donorName = donorName
-        if (wifeName !== undefined) updateData.wifeName = wifeName
+        if (fatherName !== undefined) updateData.fatherName = fatherName
         
         const donor = await DonorService.updateDonor(id, updateData)
         
@@ -79,3 +79,22 @@ export async function getAllDonorsWithDonations() {
     }
 }
 
+export async function getDonorById(id: string) {
+    try {
+        await connectToDatabase()
+        const donor = await DonorService.getDonorById(id)
+        const donations = await DonationService.getDonationsByDonor(donor?.id || '')
+        return {
+            success: true,
+            donor: donor,
+            donations: donations
+        }
+    } catch (error: any) {
+        console.error('Error fetching donor by id:', error)
+        return {
+            success: false,
+            message: error.message || 'Server error occurred',
+            donor: null
+        }
+    }
+}

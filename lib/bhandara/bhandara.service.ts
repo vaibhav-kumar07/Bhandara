@@ -6,8 +6,9 @@ import { DonationModel } from '@/lib/donation/donation.model'
 
 export class BhandaraService {
   static async createBhandara(request: CreateBhandaraRequest): Promise<BhandaraResponse> {
-    // Sanitize and convert to uppercase
-    const name = sanitizeString(request.name).toUpperCase()
+    // Sanitize and capitalize only first letter
+    const sanitized = sanitizeString(request.name)
+    const name = sanitized.charAt(0).toUpperCase() + sanitized.slice(1).toLowerCase()
 
     // Validation
     if (!name || name.length < 3) {
@@ -129,7 +130,8 @@ export class BhandaraService {
     const updateData: { name?: string; date?: Date } = {}
 
     if (request.name !== undefined) {
-      const name = sanitizeString(request.name).toUpperCase()
+      const sanitized = sanitizeString(request.name)
+      const name = sanitized.charAt(0).toUpperCase() + sanitized.slice(1).toLowerCase()
       if (!name || name.length < 3) {
         throw new Error('Bhandara name must be at least 3 characters')
       }

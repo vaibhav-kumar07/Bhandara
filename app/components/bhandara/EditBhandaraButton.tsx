@@ -28,8 +28,8 @@ export default function EditBhandaraButton({ bhandara }: EditBhandaraButtonProps
         title="Edit bhandara"
         type="button"
       >
-        <Edit2 className="w-4 h-4" />
-        <span>Edit</span>
+        <Edit2 className="w-3 h-3 sm:w-4 sm:h-4" />
+        <span className="text-sm sm:text-base hidden sm:block">Edit</span>
       </button>
 
       {isModalOpen && (

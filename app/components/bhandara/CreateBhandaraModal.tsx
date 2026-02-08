@@ -130,8 +130,7 @@ export default function CreateBhandaraModal({ onClose }: CreateBhandaraModalProp
               required
               minLength={3}
               disabled={isSubmitting || isRedirecting}
-              className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-base disabled:bg-gray-100 disabled:cursor-not-allowed uppercase"
-              style={{ textTransform: 'uppercase' }}
+              className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-base disabled:bg-gray-100 disabled:cursor-not-allowed"
               placeholder="Enter bhandara name"
               autoFocus
             />

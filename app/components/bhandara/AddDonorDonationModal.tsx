@@ -18,7 +18,7 @@ export default function AddDonorDonationModal({ bhandaraId, onClose }: AddDonorD
   const [step, setStep] = useState<'donor' | 'donation'>('donor')
   const [donorData, setDonorData] = useState({
     donorName: '',
-    wifeName: ''
+    fatherName: ''
   })
   const [donationData, setDonationData] = useState<{
     amount: string
@@ -53,7 +53,7 @@ export default function AddDonorDonationModal({ bhandaraId, onClose }: AddDonorD
     try {
       const result = await createDonor({
         donorName: donorData.donorName.trim(),
-        wifeName: donorData.wifeName.trim()
+        fatherName: donorData.fatherName.trim() || undefined
       })
       
       if (result.success && result.donorId) {
@@ -174,29 +174,26 @@ export default function AddDonorDonationModal({ bhandaraId, onClose }: AddDonorD
                   onChange={handleDonorChange}
                   required
                   minLength={2}
-                  className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base uppercase"
-                  style={{ textTransform: 'uppercase' }}
+                  className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base"
                   placeholder="Enter donor name"
                   autoFocus
                 />
               </div>
 
-              {/* Wife Name */}
+              {/* Father Name */}
               <div>
-                <label htmlFor="wifeName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Wife Name
+                <label htmlFor="fatherName" className="block text-sm font-medium text-gray-700 mb-2">
+                  Father Name <span className="text-gray-500 text-xs">(optional)</span>
                 </label>
                 <input
                   type="text"
-                  id="wifeName"
-                  name="wifeName"
-                  value={donorData.wifeName}
+                  id="fatherName"
+                  name="fatherName"
+                  value={donorData.fatherName}
                   onChange={handleDonorChange}
-                  required
                   minLength={2}
-                  className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base uppercase"
-                  style={{ textTransform: 'uppercase' }}
-                  placeholder="Enter wife name"
+                  className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base"
+                  placeholder="Enter father name (optional)"
                 />
               </div>
             </>

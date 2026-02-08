@@ -9,10 +9,10 @@ interface DeleteBhandaraButtonProps {
   donationCount: number
 }
 
-export default function DeleteBhandaraButton({ 
-  bhandaraId, 
+export default function DeleteBhandaraButton({
+  bhandaraId,
   bhandaraName,
-  donationCount 
+  donationCount
 }: DeleteBhandaraButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -25,8 +25,8 @@ export default function DeleteBhandaraButton({
         title={donationCount > 0 ? 'Cannot delete bhandara with donations' : 'Delete bhandara'}
         type="button"
       >
-        <Trash2 className="w-4 h-4" />
-        <span>Delete</span>
+        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+        <span className="text-sm sm:text-base hidden sm:block">Delete</span>
       </button>
 
       {isModalOpen && (

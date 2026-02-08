@@ -33,14 +33,14 @@ export default function EditBhandaraModal({ bhandara, onClose, onSuccess }: Edit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
+
     try {
       const result = await updateBhandara({
         id: bhandara.id,
         name: formData.name.trim(),
         date: formData.date
       })
-      
+
       if (result.success) {
         toastSuccess('Bhandara updated successfully!')
         if (onSuccess) {
@@ -74,21 +74,21 @@ export default function EditBhandaraModal({ bhandara, onClose, onSuccess }: Edit
   }
 
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent bg-opacity-50 backdrop-blur-sm" 
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent bg-opacity-50 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
-      <div 
+      <div
         className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto hide-scrollbar [scrollbar-width:none] [-ms-overflow-style:none]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-2 sm:px-4 py-2 sm:py-4 flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-base sm:text-lg font-bold text-gray-900">
               Edit Bhandara
             </h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-xs sm:text-sm text-gray-600">
               Update bhandara information
             </p>
           </div>
@@ -101,13 +101,13 @@ export default function EditBhandaraModal({ bhandara, onClose, onSuccess }: Edit
         </div>
 
         {/* Form */}
-        <form 
-          onSubmit={handleSubmit} 
-          className="p-4 sm:p-6 space-y-5"
+        <form
+          onSubmit={handleSubmit}
+          className="px-4 py-2 sm:px-4 sm:py-4 space-y-2 sm:space-y-4"
         >
           {/* Bhandara Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="name" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
               Bhandara Name
             </label>
             <input
@@ -119,8 +119,7 @@ export default function EditBhandaraModal({ bhandara, onClose, onSuccess }: Edit
               required
               minLength={3}
               disabled={isSubmitting}
-              className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-base disabled:bg-gray-100 disabled:cursor-not-allowed uppercase"
-              style={{ textTransform: 'uppercase' }}
+              className="w-full px-2 py-1.5 sm:px-4 sm:py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-base disabled:bg-gray-100 disabled:cursor-not-allowed"
               placeholder="Enter bhandara name"
               autoFocus
             />
@@ -128,7 +127,7 @@ export default function EditBhandaraModal({ bhandara, onClose, onSuccess }: Edit
 
           {/* Date */}
           <div>
-            <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="date" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
               Date
             </label>
             <input
@@ -139,16 +138,16 @@ export default function EditBhandaraModal({ bhandara, onClose, onSuccess }: Edit
               onChange={handleChange}
               required
               disabled={isSubmitting}
-              className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-base disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-2 py-1.5 sm:px-4 sm:py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-base disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
           </div>
 
           {/* Buttons */}
-          <div className="pt-2">
+          <div className="pt-2 sm:pt-4">
             <Button
               type="submit"
               isLoading={isSubmitting}
-              className="w-full"
+              className="w-full text-xs sm:text-sm"
             >
               Update Bhandara
             </Button>

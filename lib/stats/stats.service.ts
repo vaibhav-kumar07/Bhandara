@@ -1,16 +1,17 @@
 import { getDatabase } from '@/lib/shared/db'
 import { COLLECTIONS, PAYMENT_MODE, BHANDARA_STATUS } from '@/lib/shared/constants'
 import { BhandaraStats, OverallStats, StatsResponse } from './stats.types'
+import { ObjectId } from 'mongodb'
 
-export class StatsService {
-  static async  getStats(): Promise<StatsResponse> {
+
+   export async function getStats(): Promise<StatsResponse> {
     const db = getDatabase()
 
     // Get overall stats
-    const overall = await this.getOverallStats()
+    const overall = await getOverallStats()
     
     // Get bhandara-wise stats
-    const bhandaras = await this.getBhandaraStats()
+    const bhandaras = await getBhandaraStats()
 
     return {
       overall,
@@ -18,7 +19,7 @@ export class StatsService {
     }
   }
 
-  static async getOverallStats(): Promise<OverallStats> {
+  export async function getOverallStats(): Promise<OverallStats> {
     const db = getDatabase()
 
     // Total bhandaras
@@ -68,7 +69,7 @@ export class StatsService {
     }
   }
 
-  private static async getBhandaraStats(): Promise<BhandaraStats[]> {
+  export async function getBhandaraStats(): Promise<BhandaraStats[]> {
     const db = getDatabase()
 
     const stats = await db.collection(COLLECTIONS.DONATIONS).aggregate([
@@ -152,92 +153,123 @@ export class StatsService {
     }))
   }
 
-  static async getBhandaraStatsById(bhandaraId: string): Promise<BhandaraStats | null> {
-    const db = getDatabase()
+ 
+export async function getBhandaraStatsById(bhandaraId: string): Promise<BhandaraStats | null> {
+  const db = getDatabase()
 
-    const stats = await db.collection(COLLECTIONS.DONATIONS).aggregate([
-      {
-        $match: { bhandara: { $eq: { $toObjectId: bhandaraId } } }
-      },
-      {
-        $lookup: {
-          from: COLLECTIONS.BHANDARAS,
-          localField: 'bhandara',
-          foreignField: '_id',
-          as: 'bhandaraData'
-        }
-      },
-      {
-        $unwind: '$bhandaraData'
-      },
-      {
-        $group: {
-          _id: '$bhandara',
-          bhandaraName: { $first: '$bhandaraData.name' },
-          totalCollected: {
-            $sum: '$amount'
-          },
-          totalDonations: { $sum: 1 },
-          donorCount: { $addToSet: '$donor' },
-          cashAmount: {
-            $sum: {
-              $cond: [
-                { $eq: ['$paymentMode', PAYMENT_MODE.CASH] },
-                '$amount',
-                0
-              ]
-            }
-          },
-          upiAmount: {
-            $sum: {
-              $cond: [
-                { $eq: ['$paymentMode', PAYMENT_MODE.UPI] },
-                '$amount',
-                0
-              ]
-            }
-          },
-          bankAmount: {
-            $sum: {
-              $cond: [
-                { $eq: ['$paymentMode', PAYMENT_MODE.BANK] },
-                '$amount',
-                0
-              ]
-            }
+ 
+  if (!/^[0-9a-fA-F]{24}$/.test(bhandaraId)) {
+    return null
+  }
+
+  const bhandaraObjectId = new ObjectId(bhandaraId)
+
+  // First, check if bhandara exists
+  const bhandara = await db.collection(COLLECTIONS.BHANDARAS).findOne({ _id: bhandaraObjectId })
+  if (!bhandara) {
+    return null
+  }
+
+  const stats = await db.collection(COLLECTIONS.DONATIONS).aggregate([
+    {
+      $match: { bhandara: bhandaraObjectId }
+    },
+    {
+      $lookup: {
+        from: COLLECTIONS.BHANDARAS,
+        localField: 'bhandara',
+        foreignField: '_id',
+        as: 'bhandaraData'
+      }
+    },
+    {
+      $unwind: {
+        path: '$bhandaraData',
+        preserveNullAndEmptyArrays: false
+      }
+    },
+    {
+      $group: {
+        _id: '$bhandara',
+        bhandaraName: { $first: '$bhandaraData.name' },
+        totalCollected: {
+          $sum: '$amount'
+        },
+        totalDonations: { $sum: 1 },
+        donorCount: { $addToSet: '$donor' },
+        cashAmount: {
+          $sum: {
+            $cond: [
+              { $eq: ['$paymentMode', PAYMENT_MODE.CASH] },
+              '$amount',
+              0
+            ]
+          }
+        },
+        upiAmount: {
+          $sum: {
+            $cond: [
+              { $eq: ['$paymentMode', PAYMENT_MODE.UPI] },
+              '$amount',
+              0
+            ]
+          }
+        },
+        bankAmount: {
+          $sum: {
+            $cond: [
+              { $eq: ['$paymentMode', PAYMENT_MODE.BANK] },
+              '$amount',
+              0
+            ]
           }
         }
-      },
-      {
-        $project: {
-          bhandaraId: { $toString: '$_id' },
-          bhandaraName: 1,
-          totalCollected: 1,
-          totalPending: { $literal: 0 },
-          totalDonations: 1,
-          donorCount: { $size: '$donorCount' },
-          cashAmount: 1,
-          upiAmount: 1,
-          bankAmount: 1
-        }
       }
-    ]).toArray()
+    },
+    {
+      $project: {
+        bhandaraId: { $toString: '$_id' },
+        bhandaraName: 1,
+        totalCollected: 1,
+        totalPending: { $literal: 0 },
+        totalDonations: 1,
+        donorCount: { $size: '$donorCount' },
+        cashAmount: 1,
+        upiAmount: 1,
+        bankAmount: 1
+      }
+    }
+  ]).toArray()
 
-    if (stats.length === 0) return null
-
-    const stat = stats[0]
+  // If no donations found, return stats with zeros
+  if (stats.length === 0) {
     return {
       bhandaraId,
-      bhandaraName: stat.bhandaraName,
-      totalCollected: stat.totalCollected,
-      totalPending: stat.totalPending || 0,
-      totalDonations: stat.totalDonations,
-      donorCount: stat.donorCount,
+      bhandaraName: bhandara.name,
+      totalCollected: 0,
+      totalPending: 0,
+      totalDonations: 0,
+      donorCount: 0,
       paymentModeBreakdown: {
-        cash: stat.cashAmount || 0,
-        upi: stat.upiAmount || 0,
-        bank: stat.bankAmount || 0
+        cash: 0,
+        upi: 0,
+        bank: 0
       }
+    }
+  }
+
+  const stat = stats[0]
+  return {
+    bhandaraId,
+    bhandaraName: stat.bhandaraName,
+    totalCollected: stat.totalCollected,
+    totalPending: stat.totalPending || 0,
+    totalDonations: stat.totalDonations,
+    donorCount: stat.donorCount,
+    paymentModeBreakdown: {
+      cash: stat.cashAmount || 0,
+      upi: stat.upiAmount || 0,
+      bank: stat.bankAmount || 0
     }
   }
 }

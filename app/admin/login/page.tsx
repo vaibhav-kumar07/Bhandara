@@ -32,15 +32,15 @@ export default function AdminLoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (isRedirecting) return
-    
+
     setIsSubmitting(true)
-    
+
     try {
       const result = await loginAdmin({
         username: formData.username,
         pin: formData.pin
       })
-      
+
       if (result.success) {
         toastSuccess('Login successful! Redirecting...')
         setIsSubmitting(false)
@@ -61,12 +61,12 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="h-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-sm">
+    <div className="h-full bg-white flex items-center justify-center px-2 sm:px-4 py-6 sm:py-8">
+      <div className="w-full sm:max-w-sm">
         {/* Form Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+        <div className=" sm:rounded-md sm:shadow-sm p-4 sm:p-8 sm:border sm:border-gray-200">
           <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">Admin Login</h1>
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-2 sm:space-y-4" onSubmit={handleSubmit}>
             <UsernameInput
               value={formData.username}
               onChange={handleUsernameChange}
@@ -90,9 +90,9 @@ export default function AdminLoginPage() {
           </form>
 
           {/* Footer Link */}
-          <div className="mt-6 text-center">
-            <Link 
-              href="/admin/create" 
+          <div className="mt-2 sm:mt-6 text-center">
+            <Link
+              href="/admin/create"
               className="text-sm text-blue-600 hover:text-blue-700 font-medium"
             >
               Need to add an admin? Login first

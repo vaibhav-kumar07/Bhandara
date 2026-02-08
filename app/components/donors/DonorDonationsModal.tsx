@@ -27,19 +27,19 @@ export default function DonorDonationsModal({ donor, donations, onClose }: Donor
   }
 
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent bg-opacity-50 backdrop-blur-sm" 
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent bg-opacity-50 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
-      <div 
+      <div
         className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-3 sm:px-6 py-2.5 sm:py-4 flex items-center justify-between shrink-0">
           <div className="min-w-0 flex-1">
-            <h2 className="text-base sm:text-xl font-bold text-gray-900 truncate">
-              {donor.donorName} / {donor.wifeName}
+            <h2 className="text-base sm:text-xl font-bold text-gray-900 truncate capitalize">
+              {donor.donorName}{donor.fatherName ? ` / ${donor.fatherName}` : ''}
             </h2>
             <p className="text-xs sm:text-sm text-gray-600 mt-0.5">
               {donations.length} {donations.length === 1 ? 'donation' : 'donations'} total
@@ -69,27 +69,27 @@ export default function DonorDonationsModal({ donor, donations, onClose }: Donor
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-3">
                     {/* Bhandara Name - Compact */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate">
+                      <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate capitalize">
                         {donation.bhandara.name}
                       </h3>
                     </div>
-                    
+
                     {/* Date, Amount, Mode - Compact Row */}
                     <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm">
                       {/* Date */}
                       <span className="text-gray-600 whitespace-nowrap">
-                        {new Date(donation.bhandara.date).toLocaleDateString('en-US', { 
-                          month: 'short', 
+                        {new Date(donation.bhandara.date).toLocaleDateString('en-US', {
+                          month: 'short',
                           day: 'numeric',
                           year: 'numeric'
                         })}
                       </span>
-                      
+
                       {/* Amount */}
                       <span className="font-bold text-gray-900 whitespace-nowrap">
                         ₹{donation.amount.toLocaleString('en-IN')}
                       </span>
-                      
+
                       {/* Payment Mode Badge */}
                       <span
                         className={`
@@ -97,8 +97,8 @@ export default function DonorDonationsModal({ donor, donations, onClose }: Donor
                           ${donation.paymentMode === 'cash'
                             ? 'bg-yellow-100 text-yellow-800'
                             : donation.paymentMode === 'upi'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-blue-100 text-blue-800'}
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-blue-100 text-blue-800'}
                         `}
                       >
                         {donation.paymentMode === 'cash' ? 'Cash' : donation.paymentMode === 'upi' ? 'Online' : 'Bank'}

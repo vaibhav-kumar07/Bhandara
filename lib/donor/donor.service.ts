@@ -4,22 +4,22 @@ import { sanitizeString } from '@/lib/shared/utils'
 
 export class DonorService {
   static async createDonor(request: CreateDonorRequest): Promise<DonorResponse> {
-    // Sanitize and convert to uppercase
-    const donorName = sanitizeString(request.donorName).toUpperCase()
-    const wifeName = sanitizeString(request.wifeName).toUpperCase()
+    // Sanitize (keep original case)
+    const donorName = sanitizeString(request.donorName)
+    const fatherName = request.fatherName ? sanitizeString(request.fatherName) : undefined
 
     // Validation
     if (!donorName || donorName.length < 2) {
       throw new Error('Donor name must be at least 2 characters')
     }
-    if (!wifeName || wifeName.length < 2) {
-      throw new Error('Wife name must be at least 2 characters')
+    if (fatherName && fatherName.length < 2) {
+      throw new Error('Father name must be at least 2 characters if provided')
     }
 
     // Create donor
     const donorId = await DonorModel.create({
       donorName,
-      wifeName
+      ...(fatherName && { fatherName })
     })
 
     // Fetch and return created donor
@@ -31,7 +31,7 @@ export class DonorService {
     return {
       id: donor._id!.toString(),
       donorName: donor.donorName,
-      wifeName: donor.wifeName,
+      fatherName: donor.fatherName,
       createdAt: donor.createdAt.toISOString()
     }
   }
@@ -41,7 +41,7 @@ export class DonorService {
     return donors.map(donor => ({
       id: donor._id!.toString(),
       donorName: donor.donorName,
-      wifeName: donor.wifeName,
+      fatherName: donor.fatherName,
       createdAt: donor.createdAt.toISOString()
     }))
   }
@@ -53,38 +53,43 @@ export class DonorService {
     return {
       id: donor._id!.toString(),
       donorName: donor.donorName,
-      wifeName: donor.wifeName,
+      fatherName: donor.fatherName,
       createdAt: donor.createdAt.toISOString()
     }
   }
 
-  static async searchDonors(donorName: string, wifeName: string): Promise<DonorResponse[]> {
-    const donors = await DonorModel.findByNameCombination(donorName, wifeName)
+  static async searchDonors(donorName: string, fatherName?: string): Promise<DonorResponse[]> {
+    const donors = await DonorModel.findByNameCombination(donorName, fatherName)
     return donors.map(donor => ({
       id: donor._id!.toString(),
       donorName: donor.donorName,
-      wifeName: donor.wifeName,
+      fatherName: donor.fatherName,
       createdAt: donor.createdAt.toISOString()
     }))
   }
 
-  static async updateDonor(id: string, request: { donorName?: string; wifeName?: string }): Promise<DonorResponse> {
-    const updateData: { donorName?: string; wifeName?: string } = {}
+  static async updateDonor(id: string, request: { donorName?: string; fatherName?: string }): Promise<DonorResponse> {
+    const updateData: { donorName?: string; fatherName?: string } = {}
 
     if (request.donorName !== undefined) {
-      const donorName = sanitizeString(request.donorName).toUpperCase()
+      const donorName = sanitizeString(request.donorName)
       if (!donorName || donorName.length < 2) {
         throw new Error('Donor name must be at least 2 characters')
       }
       updateData.donorName = donorName
     }
 
-    if (request.wifeName !== undefined) {
-      const wifeName = sanitizeString(request.wifeName).toUpperCase()
-      if (!wifeName || wifeName.length < 2) {
-        throw new Error('Wife name must be at least 2 characters')
+    if (request.fatherName !== undefined) {
+      if (request.fatherName === '' || request.fatherName === null) {
+        // Allow clearing father name
+        updateData.fatherName = undefined
+      } else {
+        const fatherName = sanitizeString(request.fatherName)
+        if (fatherName.length < 2) {
+          throw new Error('Father name must be at least 2 characters if provided')
+        }
+        updateData.fatherName = fatherName
       }
-      updateData.wifeName = wifeName
     }
 
     if (Object.keys(updateData).length === 0) {
@@ -105,7 +110,7 @@ export class DonorService {
     return {
       id: donor._id!.toString(),
       donorName: donor.donorName,
-      wifeName: donor.wifeName,
+      fatherName: donor.fatherName,
       createdAt: donor.createdAt.toISOString()
     }
   }

@@ -24,24 +24,11 @@ export default async function PublicPage() {
   const admin = await getCurrentAdmin()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 hide-scrollbar">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            Bhandara Donation Transparency
-          </h1>
-          <p className="text-sm sm:text-base text-gray-600">
-            View all donations and track transparency in our Bhandara events
-          </p>
-        </div>
-
-        {/* Admin Quick Actions */}
-      
-
+    <div className="h-full bg-gradient-to-br from-gray-50 to-gray-100 hide-scrollbar">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 space-y-3 sm:space-y-4">
         {/* Overall Stats */}
         {stats && stats.overall && (
-          <div className={`grid grid-cols-2 gap-3 sm:gap-4 ${admin ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+          <div className={`grid grid-cols-2 gap-3 sm:gap-4 ${admin ? 'md:grid-cols-4' : 'md:grid-cols-2'}`}>
             <StatsCard
               title="Total Donations"
               value={(stats.overall.totalCollectedAmount || 0) + (stats.overall.totalPendingAmount || 0)}
@@ -54,22 +41,16 @@ export default async function PublicPage() {
               color="blue"
               icon={<Users className="w-5 h-5 sm:w-6 sm:h-6" />}
             />
-            <StatsCard
-              title="Total Count"
-              value={stats.overall.totalDonations || 0}
-              color="gray"
-              icon={<BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" />}
-            />
             {admin && <AdminQuickActions admin={admin} />}
           </div>
         )}
 
         {/* Bhandaras List */}
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-6">
             All Bhandaras
           </h2>
-          
+
           {!bhandaras || bhandaras.length === 0 ? (
             <div className="bg-white rounded-lg shadow p-8 text-center">
               <p className="text-gray-500">No bhandaras available.</p>
@@ -80,7 +61,7 @@ export default async function PublicPage() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 hide-scrollbar">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 hide-scrollbar">
               {bhandaras.map((bhandara: any) => (
                 <BhandaraCard
                   key={bhandara.id}
@@ -94,38 +75,39 @@ export default async function PublicPage() {
 
         {/* View All Donors Section */}
         <div>
-          <div className="flex items-center justify-between mb-4 sm:mb-6 hide-scrollbar">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-              All Donors
+          <div className="flex items-center justify-between hide-scrollbar mb-2">
+            <h2 className="text-base sm:text-lg font-bold text-gray-900">
+              All Donors ({donors.length})
             </h2>
             <Link
-              href="/donors"
+              href={admin ? `/admin/donors` : `/donors`}
               className="text-sm sm:text-base text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
             >
-              View All
-              <ArrowRight className="w-4 h-4" />
+              View All ({donors.length})
             </Link>
           </div>
-          
+
           {donors.length === 0 ? (
             <div className="bg-white rounded-lg shadow p-8 text-center">
               <p className="text-gray-500">No donors available.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 hide-scrollbar">
-              {donors.slice(0, 6).map((donor: any) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 hide-scrollbar">
+              {donors.slice(0, 10).reverse().map((donor: any, index: number) => (
                 <Link
                   key={donor.id}
                   href={admin ? `/admin/donor/${donor.id}` : `/donor/${donor.id}`}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4 hover:shadow-md hover:border-blue-300 transition cursor-pointer block"
+                  className="capitalize bg-white  px-2 py-1.5 rounded-md shadow hover:shadow-md border border-gray-200 hover:border-blue-300 transition cursor-pointer block scale-[0.98] active:scale-[0.96]"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <p className="text-base font-semibold text-gray-900 truncate">
-                        {donor.donorName}
-                        <span className="text-gray-600 font-medium">
-                          {' / '}{donor.wifeName}
-                        </span>
+                      <p className="text-sm sm:text-base font-semibold text-gray-900 truncate">
+                        {index + 1}. {donor.donorName}
+                        {donor.fatherName && (
+                          <span className="text-xs sm:text-sm text-gray-600 font-medium">
+                            {' / '}{donor.fatherName}
+                          </span>
+                        )}
                       </p>
                     </div>
                     <div className="flex flex-col items-end shrink-0">

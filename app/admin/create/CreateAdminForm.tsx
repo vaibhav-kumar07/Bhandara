@@ -32,15 +32,15 @@ export default function CreateAdminForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (isRedirecting) return
-    
+
     setIsSubmitting(true)
-    
+
     try {
       const result = await createAdmin({
         username: formData.username,
         pin: formData.pin,
       })
-      
+
       if (result.success) {
         toastSuccess('Admin added successfully!')
         setIsSubmitting(false)
@@ -64,9 +64,9 @@ export default function CreateAdminForm() {
     <div className="h-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
         {/* Form Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">Add Admin</h1>
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white rounded-md shadow-sm shadow-gray-200 p-4 sm:p-8 border border-gray-100">
+          <h1 className="text-lg font-bold text-gray-900 mb-6 text-center">Add Admin</h1>
+          <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-6">
             <UsernameInput
               value={formData.username}
               onChange={handleUsernameChange}
@@ -85,16 +85,17 @@ export default function CreateAdminForm() {
               type="submit"
               isLoading={isSubmitting || isRedirecting}
               disabled={isRedirecting}
+              className="w-full text-xs sm:text-sm"
             >
               {isRedirecting ? 'Redirecting...' : 'Add Admin'}
             </Button>
           </form>
 
           {/* Footer Link */}
-          <div className="mt-6 text-center">
-            <Link 
-              href="/admin/Dashboard" 
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+          <div className="mt-2 sm:mt-6 text-center">
+            <Link
+              href="/admin/Dashboard"
+              className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium "
             >
               Back to Dashboard
             </Link>

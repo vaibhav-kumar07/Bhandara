@@ -1,7 +1,7 @@
 'use server'
 import { connectToDatabase } from "@/lib/shared/db"
 import { BhandaraService } from "@/lib/bhandara/bhandara.service"
-import { StatsService } from "@/lib/stats/stats.service"
+import { getStats } from "@/lib/stats/stats.service"
 
 export async function createBhandara({name, date}: {name: string, date: string}) {
     try {
@@ -68,7 +68,7 @@ export async function getAllBhandarasWithStats() {
         // Try to get stats, but don't fail if stats service fails
         let stats = null
         try {
-            stats = await StatsService.getStats()
+            stats = await getStats()
         } catch (statsError) {
             console.error('Error fetching stats (continuing without stats):', statsError)
         }
@@ -117,9 +117,8 @@ export async function getAllBhandarasWithStats() {
             message: error.message || 'Server error occurred',
             bhandaras: []
         }
-    }
+    }   
 }
-
 export async function deleteBhandara({ id }: { id: string }) {
     try {
         await connectToDatabase()

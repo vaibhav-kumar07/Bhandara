@@ -3,18 +3,18 @@ import { ObjectId } from 'mongodb'
 export interface Donor {
   _id?: ObjectId
   donorName: string
-  wifeName: string
+  fatherName?: string
   createdAt: Date
 }
 
 export interface CreateDonorRequest {
   donorName: string
-  wifeName: string
+  fatherName?: string
 }
 
 export interface DonorResponse {
   id: string
   donorName: string
-  wifeName: string
+  fatherName?: string
   createdAt: string
 }

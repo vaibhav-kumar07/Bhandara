@@ -27,11 +27,11 @@ export default function DonationCard({ donation, showBhandara = true, onEdit }: 
     <div className="card">
       <div className="flex justify-between items-start mb-3">
         <div className="flex-1">
-          <h3 className="font-semibold text-lg">
-            {donation.donor.donorName} & {donation.donor.wifeName}
+          <h3 className="font-semibold text-lg capitalize">
+            {donation.donor.donorName}{donation.donor.fatherName ? ` & ${donation.donor.fatherName}` : ''}
           </h3>
           {showBhandara && (
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-gray-600 mt-1 capitalize">
               {donation.bhandara.name} • {formatDate(donation.bhandara.date)}
             </p>
           )}

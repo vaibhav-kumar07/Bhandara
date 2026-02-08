@@ -21,7 +21,7 @@ export default function DonationModal({ donation, donor, onClose, mode, bhandara
   const router = useRouter()
   // In update mode, use donation data; in add mode, use donor prop
   const currentDonor = donation?.donor || donor
-  
+
   const [formData, setFormData] = useState({
     amount: donation?.amount || '',
     paymentMode: donation?.paymentMode || PAYMENT_MODE.CASH,
@@ -40,7 +40,7 @@ export default function DonationModal({ donation, donor, onClose, mode, bhandara
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
+
     try {
       const amount = parseFloat(formData.amount.toString())
       if (isNaN(amount) || amount <= 0) {
@@ -48,7 +48,7 @@ export default function DonationModal({ donation, donor, onClose, mode, bhandara
         setIsSubmitting(false)
         return
       }
-      
+
       let result: { success: boolean, message: string } | null = null
       if (mode === 'add') {
         if (!currentDonor?.id) {
@@ -76,7 +76,7 @@ export default function DonationModal({ donation, donor, onClose, mode, bhandara
           note: formData.note.trim()
         })
       }
-      
+
       if (result.success) {
         toastSuccess(mode === 'add' ? 'Donation added successfully!' : 'Donation updated successfully!')
         setTimeout(() => {
@@ -110,23 +110,23 @@ export default function DonationModal({ donation, donor, onClose, mode, bhandara
   }
 
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent bg-opacity-100 backdrop-blur-sm" 
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent bg-opacity-100 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
-      <div 
+      <div
         className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto hide-scrollbar [scrollbar-width:none] [-ms-overflow-style:none]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 sm:py-4 flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-base sm:text-lg font-bold text-gray-900">
               {mode === 'add' ? 'Add Donation' : 'Update Donation'}
             </h2>
             {currentDonor && (
-              <p className="text-sm text-gray-600 mt-1">
-                {currentDonor.donorName} / {currentDonor.wifeName}
+              <p className=" capitalize text-xs sm:text-sm text-gray-600">
+                {currentDonor.donorName}{currentDonor.fatherName ? ` / ${currentDonor.fatherName}` : ''}
               </p>
             )}
           </div>
@@ -139,10 +139,10 @@ export default function DonationModal({ donation, donor, onClose, mode, bhandara
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="px-4 py-2 sm:px-4 sm:py-4 space-y-2 sm:space-y-4">
           {/* Amount */}
           <div>
-            <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="amount" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
               Amount (₹)
             </label>
             <input
@@ -154,7 +154,7 @@ export default function DonationModal({ donation, donor, onClose, mode, bhandara
               required
               min="1"
               step="0.01"
-              className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base"
+              className="w-full px-2 py-1.5 sm:px-4 sm:py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base"
               placeholder="Enter amount"
               autoFocus
             />
@@ -162,7 +162,7 @@ export default function DonationModal({ donation, donor, onClose, mode, bhandara
 
           {/* Payment Mode */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
               Payment Mode
             </label>
             <div className="flex gap-2">
@@ -172,11 +172,10 @@ export default function DonationModal({ donation, donor, onClose, mode, bhandara
                   e.preventDefault()
                   setFormData(prev => ({ ...prev, paymentMode: PAYMENT_MODE.CASH }))
                 }}
-                className={`flex-1 px-4 py-3 rounded-lg font-medium text-sm transition-colors duration-200 ${
-                  formData.paymentMode === PAYMENT_MODE.CASH
-                    ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300'
-                    : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
-                }`}
+                className={`flex-1 px-2  sm:px-4 sm:py-2.5 rounded-md font-medium text-xs sm:text-sm transition-colors duration-200 ${formData.paymentMode === PAYMENT_MODE.CASH
+                  ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300'
+                  : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
+                  }`}
               >
                 Cash
               </button>
@@ -186,11 +185,10 @@ export default function DonationModal({ donation, donor, onClose, mode, bhandara
                   e.preventDefault()
                   setFormData(prev => ({ ...prev, paymentMode: PAYMENT_MODE.UPI }))
                 }}
-                className={`flex-1 px-4 py-3 rounded-lg font-medium text-sm transition-colors duration-200 ${
-                  formData.paymentMode === PAYMENT_MODE.UPI
-                    ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300'
-                    : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
-                }`}
+                className={`flex-1 px-2 py-1.5 sm:px-4 sm:py-2.5 rounded-md font-medium text-xs sm:text-sm transition-colors duration-200 ${formData.paymentMode === PAYMENT_MODE.UPI
+                  ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300'
+                  : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
+                  }`}
               >
                 Online
               </button>
@@ -200,7 +198,7 @@ export default function DonationModal({ donation, donor, onClose, mode, bhandara
           {/* Note - Required in update mode */}
           {mode === 'update' && (
             <div>
-              <label htmlFor="note" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="note" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                 Note <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -210,19 +208,19 @@ export default function DonationModal({ donation, donor, onClose, mode, bhandara
                 onChange={handleChange}
                 required
                 rows={1}
-                className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base resize-none"
+                className="w-full px-2 py-1.5 sm:px-4 sm:py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base resize-none placeholder:text-xs sm:placeholder:text-sm"
                 placeholder="Enter a note about this donation update..."
               />
-              <p className="text-xs text-gray-500 mt-1 pl-1">Note is required when updating a donation</p>
+              <p className="text-xs sm:text-sm text-red-500 pl-1">Note is required when updating a donation</p>
             </div>
           )}
 
           {/* Buttons */}
-          <div className="pt-2">
+          <div className="pt-2 sm:pt-4">
             <Button
               type="submit"
               isLoading={isSubmitting}
-              className="w-full"
+              className="w-full text-xs sm:text-sm"
             >
               {mode === 'update' ? 'Update Donation' : 'Add Donation'}
             </Button>

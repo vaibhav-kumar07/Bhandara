@@ -191,7 +191,7 @@ export class DonationService {
       donor: {
         id: donation.donorData._id.toString(),
         donorName: donation.donorData.donorName,
-        wifeName: donation.donorData.wifeName
+        fatherName: donation.donorData.fatherName
       },
       bhandara: {
         id: donation.bhandaraData._id.toString(),

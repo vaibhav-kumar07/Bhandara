@@ -36,7 +36,7 @@ export interface DonationResponse {
   donor: {
     id: string
     donorName: string
-    wifeName: string
+    fatherName?: string
   }
   bhandara: {
     id: string
