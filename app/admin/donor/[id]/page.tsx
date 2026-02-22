@@ -1,18 +1,20 @@
+import dynamic from 'next/dynamic'
 import { getDonorById } from '@/actions/Donor'
 import { getCurrentAdmin } from '@/lib/auth/jwt'
 import EditDonorButton from '@/app/components/donors/EditDonorButton'
 import DonationCard from '@/app/components/donors/DonationCard'
 import { ArrowLeft, Users } from 'lucide-react'
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import { DonorResponse } from '@/lib/donor/donor.types'
+import { redirect } from 'next/navigation'
+
 
 export default async function AdminDonorDetailPage({ params }: { params: { id: string } }) {
   const admin = await getCurrentAdmin()
 
   // Redirect if not admin
   if (!admin) {
-    redirect('/')
+    redirect('/admin/login')
   }
 
   const result = await getDonorById(params.id)

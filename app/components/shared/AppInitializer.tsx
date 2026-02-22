@@ -7,6 +7,6 @@ export default async function AppInitializer() {
   } catch (error) {
     console.error('Failed to initialize app:', error)
   }
-  
-  return null // This component doesn't render anything
+
+  return <></>
 }
