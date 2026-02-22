@@ -61,7 +61,6 @@ export default async function PublicBhandaraDetailPage({ params }: { params: { i
           <div className="bg-white rounded-md shadow-sm px-3 py-2 border border-gray-200">
             <div className="flex items-center justify-between  flex-wrap gap-2">
               <div className="flex items-center space-x-2 flex-1 min-w-0">
-
                 <h1 className="capitalize text-base sm:text-lg font-bold text-gray-900 truncate">
                   {bhandara.name}
                 </h1>

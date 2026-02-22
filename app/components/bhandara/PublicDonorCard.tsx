@@ -43,21 +43,18 @@ export default function PublicDonorCard({
         {/* Amount + Mode or Add indicator */}
         {donation ? (
           <div className="flex items-center gap-2 shrink-0">
-            <div className="flex  items-end">
-              <p className="text-sm sm:text-base font-bold text-gray-900">
-                ₹{donation.amount.toLocaleString('en-IN')}
-              </p>
-              <span
-                className={` text-xs sm:text-sm
+            <p className="text-sm sm:text-base font-bold text-gray-900">
+              ₹{donation.amount.toLocaleString('en-IN')}
+            </p>
+            <span
+              className={` text-xs sm:text-sm
                     mt-0.5 font-medium px-2 py-[2px] rounded-md
                     ${donation.paymentMode === 'cash'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : 'bg-green-100 text-green-800'}`}
-              >
-                {donation.paymentMode === 'cash' ? 'Cash' : 'Online'}
-              </span>
-            </div>
-
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : 'bg-green-100 text-green-800'}`}
+            >
+              {donation.paymentMode === 'cash' ? 'Cash' : 'Online'}
+            </span>
           </div>
         ) : (
           <div className="flex items-center gap-2 shrink-0">
