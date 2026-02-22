@@ -38,44 +38,40 @@ export default function DonationCard({ donation, bhandaraId, index }: DonationCa
           p-2 sm:p-2.5 md:p-3
         `}
       >
-        <div className="flex items-center justify-between gap-2 sm:gap-3">
-          {/* Left: Bhandara Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1 sm:gap-2 md:gap-3 flex-wrap">
-              <h3 className="text-sm sm:text-sm font-semibold text-gray-900 truncate capitalize">
-                {index}. {donation.bhandara.name}
-              </h3>
-              <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
-                {new Date(donation.bhandara.date).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
+        <div className="flex flex-col justify-center">
+          <div className="w-full h-full flex items-center gap-1 sm:gap-2 md:gap-3 flex-wrap">
+            <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate capitalize">
+              {index}. {donation.bhandara.name}
+            </h3>
+            <div className="ml-auto flex items-center gap-1 sm:gap-2 shrink-0">
+              <span className="text-sm sm:text-base font-bold text-gray-900 whitespace-nowrap">
+                ₹{donation.amount.toLocaleString('en-IN')}
               </span>
+              <span
+                className={`
+                text-sm sm:text-base  font-medium px-1.5 py-0.5 sm:px-1.5 sm:py-0.5 rounded whitespace-nowrap
+                ${donation.paymentMode === 'cash'
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : donation.paymentMode === 'upi'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-blue-100 text-blue-800'}
+              `}
+              >
+                {donation.paymentMode === 'cash' ? 'Cash' : donation.paymentMode === 'upi' ? 'Online' : 'Bank'}
+              </span>
+              {isLocked && (
+                <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500 shrink-0" />
+              )}
             </div>
           </div>
-
-          {/* Right: Amount and Mode */}
-          <div className="flex items-center gap-1 sm:gap-1.5 sm:gap-2 shrink-0">
-            <span className="text-sm font-bold text-gray-900 whitespace-nowrap">
-              ₹{donation.amount.toLocaleString('en-IN')}
-            </span>
-            <span
-              className={`
-                text-xs font-medium px-1.5 py-0.5 sm:px-1.5 sm:py-0.5 rounded whitespace-nowrap
-                ${donation.paymentMode === 'cash'
-                  ? 'bg-yellow-100 text-yellow-800'
-                  : donation.paymentMode === 'upi'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-blue-100 text-blue-800'}
-              `}
-            >
-              {donation.paymentMode === 'cash' ? 'Cash' : donation.paymentMode === 'upi' ? 'Online' : 'Bank'}
-            </span>
-            {isLocked && (
-              <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500 shrink-0" />
-            )}
-          </div>
+          {/* Date */}
+          <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0 ">
+            {new Date(donation.bhandara.date).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric'
+            })}
+          </span>
         </div>
       </div>
 

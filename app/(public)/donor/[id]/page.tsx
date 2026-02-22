@@ -75,8 +75,8 @@ export default async function PublicDonorDetailPage({ params }: { params: { id: 
                   <div className="flex items-center justify-between gap-2 sm:gap-3">
                     {/* Left: Bhandara Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start flex-wrap">
-                        <h3 className="text-sm sm:text-sm font-semibold text-gray-900 truncate capitalize">
+                      <div className="flex items-start">
+                        <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate capitalize">
                           {donation.bhandara.name}
                         </h3>
                         <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap flex-shrink-0">
