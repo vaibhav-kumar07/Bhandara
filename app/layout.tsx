@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import '@/styles/globals.css'
 import Header from '@/app/components/shared/Header'
 import AppInitializer from '@/app/components/shared/AppInitializer'
@@ -9,8 +9,15 @@ import NextTopLoader from 'nextjs-toploader'
 export const metadata: Metadata = {
   title: 'Bhandara Donation System',
   description: 'Transparent donation tracking for Bhandara events',
-  viewport: 'width=device-width, initial-scale=1',
 }
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+}
+
+// Force dynamic rendering for all routes since we use cookies for auth
+export const dynamic = 'force-dynamic'
 
 export default async function RootLayout({
   children,

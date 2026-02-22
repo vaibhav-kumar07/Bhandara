@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   description: 'Admin panel for managing Bhandara donations',
 }
 
+// Force dynamic rendering for admin routes since they use cookies for auth
+export const dynamic = 'force-dynamic'
+
 export default function AdminLayout({
   children,
 }: {
