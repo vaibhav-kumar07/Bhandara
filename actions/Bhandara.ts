@@ -3,13 +3,14 @@ import { connectToDatabase } from "@/lib/shared/db"
 import { BhandaraService } from "@/lib/bhandara/bhandara.service"
 import { getStats } from "@/lib/stats/stats.service"
 
-export async function createBhandara({name, date}: {name: string, date: string}) {
+export async function createBhandara({name, date, description}: {name: string, date: string, description?: string}) {
     try {
         await connectToDatabase()
         
         const bhandara = await BhandaraService.createBhandara({
             name,
-            date
+            date,
+            description
         })
         
         return {
@@ -27,13 +28,14 @@ export async function createBhandara({name, date}: {name: string, date: string})
     }
 }
 
-export async function updateBhandara({ id, name, date }: { id: string, name?: string, date?: string }) {
+export async function updateBhandara({ id, name, date, description }: { id: string, name?: string, date?: string, description?: string }) {
     try {
         await connectToDatabase()
         
-        const updateData: { name?: string; date?: string } = {}
+        const updateData: { name?: string; date?: string; description?: string } = {}
         if (name !== undefined) updateData.name = name
         if (date !== undefined) updateData.date = date
+        if (description !== undefined) updateData.description = description
         
         const bhandara = await BhandaraService.updateBhandara(id, updateData)
         

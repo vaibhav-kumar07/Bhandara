@@ -4,7 +4,8 @@ import AddDonorDonation from '@/app/components/bhandara/AddDonorDonation'
 import UploadExcelButton from '@/app/components/bhandara/UploadExcelButton'
 import EditBhandaraButton from '@/app/components/bhandara/EditBhandaraButton'
 import DeleteBhandaraButton from '@/app/components/bhandara/DeleteBhandaraButton'
-import { Calendar, ArrowLeft, Lock, DollarSign, Users, CreditCard, Wallet, Building2 } from 'lucide-react'
+import DonationsSpendingSection from '../../../components/bhandara/DonationsSpendingSection'
+import { Calendar, ArrowLeft, Lock, DollarSign, Users, CreditCard, Wallet, Building2, TrendingDown, Calculator } from 'lucide-react'
 import Link from 'next/link'
 import { getBhandaraStatsById } from '@/lib/stats/stats.service'
 const uploadbuttonActive = process.env.UPLOAD_BUTTON_ACTIVE === 'true'
@@ -28,7 +29,7 @@ export default async function BhandaraDetailPage({ params }: { params: { id: str
     )
   }
 
-  const { bhandara, donations, allDonors } = result
+  const { bhandara, donations, bhandaraSpendings, allDonors, allSpendingItems } = result
 
   // Create a map of donations by donor ID for quick lookup
   const donationMap = new Map()
@@ -77,7 +78,8 @@ export default async function BhandaraDetailPage({ params }: { params: { id: str
                     bhandara={{
                       id: bhandara.id,
                       name: bhandara.name,
-                      date: bhandara.date
+                      date: bhandara.date,
+                      description: bhandara.description
                     }}
                   />
                   <DeleteBhandaraButton
@@ -95,6 +97,11 @@ export default async function BhandaraDetailPage({ params }: { params: { id: str
                 day: 'numeric'
               })}
             </p>
+            {bhandara.description && (
+              <p className="text-xs sm:text-sm text-gray-700 mt-1 leading-relaxed">
+                {bhandara.description}
+              </p>
+            )}
             {bhandara.isLocked && (
               <p className="text-xs sm:text-sm text-red-600 mt-2 font-medium">
                 This bhandara is locked. Information cannot be changed after the event date.
@@ -119,59 +126,62 @@ export default async function BhandaraDetailPage({ params }: { params: { id: str
               </div>
 
               {/* Total Collected */}
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-md p-2 sm:p-3 border border-purple-200">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-md p-2 sm:p-3 border border-blue-200">
                 <div className="flex items-center gap-1 mb-1 sm:mb-2">
-                  <DollarSign className="w-3 h-3 sm:w-5 sm:h-5 text-purple-600 flex-shrink-0" />
-                  <span className="text-[10px] sm:text-sm font-medium text-purple-900 leading-tight">Total Collected</span>
+                  <DollarSign className="w-3 h-3 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-sm font-medium text-blue-900 leading-tight">Total Collected</span>
                 </div>
-                <p className="text-xs sm:text-xl font-bold text-purple-900 break-words">
+                <p className="text-xs sm:text-xl font-bold text-blue-900 break-words">
                   {formatCurrency(bhandarastats.totalCollected)}
+                </p>
+              </div>
+
+              {/* Total Spent */}
+              <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-md p-2 sm:p-3 border border-red-200">
+                <div className="flex items-center gap-1 mb-1 sm:mb-2">
+                  <TrendingDown className="w-3 h-3 sm:w-5 sm:h-5 text-red-600 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-sm font-medium text-red-900 leading-tight">Total Spent</span>
+                </div>
+                <p className="text-xs sm:text-xl font-bold text-red-900 break-words">
+                  {formatCurrency(bhandarastats.totalSpent)}
+                </p>
+              </div>
+
+              {/* Net Balance */}
+              <div className={`bg-gradient-to-br rounded-md p-2 sm:p-3 border ${bhandarastats.netBalance >= 0
+                ? 'from-purple-50 to-purple-100 border-purple-200'
+                : 'from-orange-50 to-orange-100 border-orange-200'
+                }`}>
+                <div className="flex items-center gap-1 mb-1 sm:mb-2">
+                  <Calculator className={`w-3 h-3 sm:w-5 sm:h-5 flex-shrink-0 ${bhandarastats.netBalance >= 0 ? 'text-purple-600' : 'text-orange-600'
+                    }`} />
+                  <span className={`text-[10px] sm:text-sm font-medium leading-tight ${bhandarastats.netBalance >= 0 ? 'text-purple-900' : 'text-orange-900'
+                    }`}>Net Balance</span>
+                </div>
+                <p className={`text-xs sm:text-xl font-bold break-words ${bhandarastats.netBalance >= 0 ? 'text-purple-900' : 'text-orange-900'
+                  }`}>
+                  {formatCurrency(bhandarastats.netBalance)}
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* Donors Grid */}
-        <div>
-          <div className="w-full flex items-center justify-between  flex-wrap gap-2.5">
-
-            {!bhandara.isLocked && (
-              <div className="flex flex-wrap gap-2.5 sm:w-auto w-full">
-                {uploadbuttonActive && (
-                  <div className="flex-1 sm:flex-initial">
-                    <UploadExcelButton bhandaraId={bhandara.id} isLocked={bhandara.isLocked || false} />
-                  </div>
-                )}
-                <div className="flex-1 sm:flex-initial">
-                  <AddDonorDonation bhandaraId={bhandara.id} />
-                </div>
-              </div>
-            )}
-          </div>
-          {!allDonors || allDonors.length === 0 ? (
-            <div className="bg-white rounded-md shadow-sm px-3 py-2 border border-gray-200 text-center my-2">
-              <p className="text-gray-600">No donors available. Add donors from the dashboard.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-2 py-2.5 sm:gap-3">
-              {allDonors.map((donor, index) => {
-                const donation = donationMap.get(donor.id)
-                console.log("donor", donation)
-                return (
-                  <DonorCard
-                    key={donor.id}
-                    donor={donor}
-                    donation={donation}
-                    bhandaraId={bhandara.id}
-                    isLocked={bhandara.isLocked || false}
-                    index={index + 1}
-                  />
-                )
-              })}
-            </div>
-          )}
-        </div>
+        {/* Donations & Spending Section */}
+        <DonationsSpendingSection
+          bhandara={{
+            id: bhandara.id,
+            name: bhandara.name,
+            date: bhandara.date,
+            isLocked: bhandara.isLocked || false
+          }}
+          donations={donations}
+          allDonors={allDonors || []}
+          donationMap={donationMap}
+          bhandaraSpendings={bhandaraSpendings || []}
+          allSpendingItems={allSpendingItems || []}
+          uploadbuttonActive={uploadbuttonActive}
+        />
       </div>
     </div >
   )

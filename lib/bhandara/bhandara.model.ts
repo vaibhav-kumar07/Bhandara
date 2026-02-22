@@ -44,11 +44,12 @@ export class BhandaraModel {
     return result.modifiedCount > 0
   }
 
-  static async update(id: string, updates: { name?: string; date?: Date }): Promise<boolean> {
+  static async update(id: string, updates: { name?: string; date?: Date; description?: string }): Promise<boolean> {
     const collection = this.getCollection()
     const updateData: any = {}
     if (updates.name !== undefined) updateData.name = updates.name
     if (updates.date !== undefined) updateData.date = updates.date
+    if (updates.description !== undefined) updateData.description = updates.description
     
     const result = await collection.updateOne(
       { _id: new ObjectId(id) },

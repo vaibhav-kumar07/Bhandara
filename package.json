@@ -7,7 +7,9 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-    "create-admin": "node scripts/create-admin.js"
+    "create-admin": "node scripts/create-admin.js",
+    "seed": "tsx scripts/seed.ts",
+    "seed:admin": "tsx scripts/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

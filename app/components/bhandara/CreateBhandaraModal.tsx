@@ -26,12 +26,13 @@ export default function CreateBhandaraModal({ onClose }: CreateBhandaraModalProp
 
   const [formData, setFormData] = useState({
     name: getDefaultName(),
-    date: today
+    date: today,
+    description: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isRedirecting, setIsRedirecting] = useState(false)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
@@ -46,7 +47,8 @@ export default function CreateBhandaraModal({ onClose }: CreateBhandaraModalProp
     try {
       const result = await createBhandara({
         name: formData.name.trim(),
-        date: formData.date
+        date: formData.date,
+        description: formData.description.trim() || undefined
       })
 
       if (result.success && result.bhandaraId) {
@@ -150,6 +152,23 @@ export default function CreateBhandaraModal({ onClose }: CreateBhandaraModalProp
               required
               disabled={isSubmitting || isRedirecting}
               className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-base disabled:bg-gray-100 disabled:cursor-not-allowed"
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+              Description (Optional)
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              disabled={isSubmitting || isRedirecting}
+              rows={3}
+              className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-base disabled:bg-gray-100 disabled:cursor-not-allowed resize-none"
+              placeholder="Enter a brief description for this bhandara (optional)"
             />
           </div>
 

@@ -5,7 +5,15 @@ export interface BhandaraStats {
   totalPending: number
   totalDonations: number
   donorCount: number
+  totalSpent: number
+  totalSpendings: number
+  netBalance: number
   paymentModeBreakdown: {
+    cash: number
+    upi: number
+    bank: number
+  }
+  spendingModeBreakdown: {
     cash: number
     upi: number
     bank: number
@@ -19,7 +27,11 @@ export interface OverallStats {
   totalDonations: number
   totalCollectedAmount: number
   totalPendingAmount: number
+  totalSpentAmount: number
+  totalSpendings: number
+  netBalance: number
   recentDonations: number // Last 7 days
+  recentSpendings: number // Last 7 days
 }
 
 export interface StatsResponse {

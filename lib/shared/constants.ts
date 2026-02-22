@@ -23,5 +23,7 @@ export const COLLECTIONS = {
   DONORS: 'donors',
   BHANDARAS: 'bhandaras',
   DONATIONS: 'donations',
+  SPENDING_ITEMS: 'spending_items',
+  BHANDARA_SPENDINGS: 'bhandara_spendings',
   ADMINS: 'admins'
 } as const

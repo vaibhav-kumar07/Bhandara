@@ -10,6 +10,7 @@ interface EditBhandaraModalProps {
     id: string
     name: string
     date: string
+    description?: string
   }
   onClose: () => void
   onSuccess?: () => void
@@ -18,11 +19,12 @@ interface EditBhandaraModalProps {
 export default function EditBhandaraModal({ bhandara, onClose, onSuccess }: EditBhandaraModalProps) {
   const [formData, setFormData] = useState({
     name: bhandara.name,
-    date: bhandara.date
+    date: bhandara.date,
+    description: bhandara.description || ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
@@ -38,7 +40,8 @@ export default function EditBhandaraModal({ bhandara, onClose, onSuccess }: Edit
       const result = await updateBhandara({
         id: bhandara.id,
         name: formData.name.trim(),
-        date: formData.date
+        date: formData.date,
+        description: formData.description.trim() || undefined
       })
 
       if (result.success) {
@@ -83,7 +86,7 @@ export default function EditBhandaraModal({ bhandara, onClose, onSuccess }: Edit
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-2 sm:px-4 py-2 sm:py-4 flex items-center justify-between">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-4 py-2 sm:py-4 flex items-center justify-between">
           <div>
             <h2 className="text-base sm:text-lg font-bold text-gray-900">
               Edit Bhandara
@@ -139,6 +142,23 @@ export default function EditBhandaraModal({ bhandara, onClose, onSuccess }: Edit
               required
               disabled={isSubmitting}
               className="w-full px-2 py-1.5 sm:px-4 sm:py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-base disabled:bg-gray-100 disabled:cursor-not-allowed"
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label htmlFor="description" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+              Description (Optional)
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              disabled={isSubmitting}
+              rows={4}
+              className="w-full text-xs sm:text-sm px-2 py-1.5 sm:px-4 sm:py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all  disabled:bg-gray-100 disabled:cursor-not-allowed resize-none placeholder:text-gray-500 placeholder:text-sm"
+              placeholder="Enter a brief description for this bhandara (optional)"
             />
           </div>
 

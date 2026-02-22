@@ -20,10 +20,20 @@ export class BhandaraService {
       throw new Error('Invalid date format')
     }
 
+    // Sanitize description if provided
+    let description: string | undefined
+    if (request.description) {
+      description = sanitizeString(request.description).trim()
+      if (description.length === 0) {
+        description = undefined
+      }
+    }
+
     // Create bhandara
     const bhandaraId = await BhandaraModel.create({
       name,
-      date
+      date,
+      ...(description && { description })
     })
 
     // Fetch and return created bhandara
@@ -37,6 +47,7 @@ export class BhandaraService {
       id: bhandara._id!.toString(),
       name: bhandara.name,
       date: dateStr,
+      description: bhandara.description,
       status: bhandara.status,
       createdAt: bhandara.createdAt.toISOString(),
       isLocked: isBhandaraLocked(bhandara.date)
@@ -51,6 +62,7 @@ export class BhandaraService {
         id: bhandara._id!.toString(),
         name: bhandara.name,
         date: dateStr,
+        description: bhandara.description,
         status: bhandara.status,
         createdAt: bhandara.createdAt.toISOString(),
         isLocked: isBhandaraLocked(bhandara.date)
@@ -66,6 +78,7 @@ export class BhandaraService {
         id: bhandara._id!.toString(),
         name: bhandara.name,
         date: dateStr,
+        description: bhandara.description,
         status: bhandara.status,
         createdAt: bhandara.createdAt.toISOString(),
         isLocked: isBhandaraLocked(bhandara.date)
@@ -82,6 +95,7 @@ export class BhandaraService {
       id: bhandara._id!.toString(),
       name: bhandara.name,
       date: dateStr,
+      description: bhandara.description,
       status: bhandara.status,
       createdAt: bhandara.createdAt.toISOString(),
       isLocked: isBhandaraLocked(bhandara.date)
@@ -110,6 +124,7 @@ export class BhandaraService {
       id: bhandara._id!.toString(),
       name: bhandara.name,
       date: dateStr,
+      description: bhandara.description,
       status: bhandara.status,
       createdAt: bhandara.createdAt.toISOString(),
       isLocked: isBhandaraLocked(bhandara.date)
@@ -127,7 +142,7 @@ export class BhandaraService {
       throw new Error('Bhandara is locked. Cannot update information after the event date.')
     }
 
-    const updateData: { name?: string; date?: Date } = {}
+    const updateData: { name?: string; date?: Date; description?: string } = {}
 
     if (request.name !== undefined) {
       const sanitized = sanitizeString(request.name)
@@ -144,6 +159,11 @@ export class BhandaraService {
         throw new Error('Invalid date format')
       }
       updateData.date = date
+    }
+
+    if (request.description !== undefined) {
+      const sanitized = sanitizeString(request.description).trim()
+      updateData.description = sanitized.length > 0 ? sanitized : undefined
     }
 
     if (Object.keys(updateData).length === 0) {
@@ -166,6 +186,7 @@ export class BhandaraService {
       id: bhandara._id!.toString(),
       name: bhandara.name,
       date: dateStr,
+      description: bhandara.description,
       status: bhandara.status,
       createdAt: bhandara.createdAt.toISOString(),
       isLocked: isBhandaraLocked(bhandara.date)

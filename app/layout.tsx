@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import '@/styles/globals.css'
 import Header from '@/app/components/shared/Header'
+import AppInitializer from '@/app/components/shared/AppInitializer'
 import { Suspense } from 'react'
 import { Toaster } from '@/components/ui/sonner'
 
@@ -18,6 +19,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className="hide-scrollbar">
       <body className="hide-scrollbar">
+        <AppInitializer />
         <div className="w-full h-screen overflow-hidden hide-scrollbar">
           <Suspense fallback={<div>Loading...</div>}>
             <Header />

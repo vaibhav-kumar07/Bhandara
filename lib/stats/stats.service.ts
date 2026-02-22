@@ -50,11 +50,31 @@ import { ObjectId } from 'mongodb'
     const totalCollectedAmount = totalAmount
     const totalPendingAmount = 0
 
-    // Recent donations (last 7 days)
+    // Total spendings
+    const totalSpendings = await db.collection(COLLECTIONS.BHANDARA_SPENDINGS).countDocuments()
+
+    // Total spent amount
+    const totalSpentResult = await db.collection(COLLECTIONS.BHANDARA_SPENDINGS).aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: '$amount' }
+        }
+      }
+    ]).toArray()
+
+    const totalSpentAmount = totalSpentResult.length > 0 ? totalSpentResult[0].total : 0
+    const netBalance = totalAmount - totalSpentAmount
+
+    // Recent donations and spendings (last 7 days)
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
     
     const recentDonations = await db.collection(COLLECTIONS.DONATIONS).countDocuments({
+      createdAt: { $gte: sevenDaysAgo }
+    })
+
+    const recentSpendings = await db.collection(COLLECTIONS.BHANDARA_SPENDINGS).countDocuments({
       createdAt: { $gte: sevenDaysAgo }
     })
 
@@ -65,92 +85,149 @@ import { ObjectId } from 'mongodb'
       totalDonations,
       totalCollectedAmount,
       totalPendingAmount,
-      recentDonations
+      totalSpentAmount,
+      totalSpendings,
+      netBalance,
+      recentDonations,
+      recentSpendings
     }
   }
 
   export async function getBhandaraStats(): Promise<BhandaraStats[]> {
     const db = getDatabase()
 
-    const stats = await db.collection(COLLECTIONS.DONATIONS).aggregate([
-      {
-        $lookup: {
-          from: COLLECTIONS.BHANDARAS,
-          localField: 'bhandara',
-          foreignField: '_id',
-          as: 'bhandaraData'
-        }
-      },
-      {
-        $unwind: '$bhandaraData'
-      },
-      {
-        $group: {
-          _id: '$bhandara',
-          bhandaraName: { $first: '$bhandaraData.name' },
-          totalCollected: {
-            $sum: '$amount'
-          },
-          totalDonations: { $sum: 1 },
-          donorCount: { $addToSet: '$donor' },
-          cashAmount: {
-            $sum: {
-              $cond: [
-                { $eq: ['$paymentMode', PAYMENT_MODE.CASH] },
-                '$amount',
-                0
-              ]
-            }
-          },
-          upiAmount: {
-            $sum: {
-              $cond: [
-                { $eq: ['$paymentMode', PAYMENT_MODE.UPI] },
-                '$amount',
-                0
-              ]
-            }
-          },
-          bankAmount: {
-            $sum: {
-              $cond: [
-                { $eq: ['$paymentMode', PAYMENT_MODE.BANK] },
-                '$amount',
-                0
-              ]
-            }
-          }
-        }
-      },
-      {
-        $project: {
-          bhandaraId: { $toString: '$_id' },
-          bhandaraName: 1,
-          totalCollected: 1,
-          totalPending: { $literal: 0 },
-          totalDonations: 1,
-          donorCount: { $size: '$donorCount' },
-          paymentModeBreakdown: {
-            cash: '$cashAmount',
-            upi: '$upiAmount',
-            bank: '$bankAmount'
-          }
-        }
-      },
-      {
-        $sort: { totalCollected: -1 }
-      }
-    ]).toArray()
+    // Get all bhandaras first
+    const bhandaras = await db.collection(COLLECTIONS.BHANDARAS).find({}).toArray()
+    
+    const results: BhandaraStats[] = []
 
-    return stats.map(stat => ({
-      bhandaraId: stat.bhandaraId,
-      bhandaraName: stat.bhandaraName,
-      totalCollected: stat.totalCollected,
-      totalPending: stat.totalPending,
-      totalDonations: stat.totalDonations,
-      donorCount: stat.donorCount,
-      paymentModeBreakdown: stat.paymentModeBreakdown
-    }))
+    for (const bhandara of bhandaras) {
+      const bhandaraId = bhandara._id.toString()
+      
+      // Get donation stats
+      const donationStats = await db.collection(COLLECTIONS.DONATIONS).aggregate([
+        {
+          $match: { bhandara: bhandara._id }
+        },
+        {
+          $group: {
+            _id: null,
+            totalCollected: { $sum: '$amount' },
+            totalDonations: { $sum: 1 },
+            donorCount: { $addToSet: '$donor' },
+            cashAmount: {
+              $sum: {
+                $cond: [
+                  { $eq: ['$paymentMode', PAYMENT_MODE.CASH] },
+                  '$amount',
+                  0
+                ]
+              }
+            },
+            upiAmount: {
+              $sum: {
+                $cond: [
+                  { $eq: ['$paymentMode', PAYMENT_MODE.UPI] },
+                  '$amount',
+                  0
+                ]
+              }
+            },
+            bankAmount: {
+              $sum: {
+                $cond: [
+                  { $eq: ['$paymentMode', PAYMENT_MODE.BANK] },
+                  '$amount',
+                  0
+                ]
+              }
+            }
+          }
+        }
+      ]).toArray()
+
+      // Get spending stats
+      const spendingStats = await db.collection(COLLECTIONS.BHANDARA_SPENDINGS).aggregate([
+        {
+          $match: { bhandara: bhandara._id }
+        },
+        {
+          $group: {
+            _id: null,
+            totalSpent: { $sum: '$amount' },
+            totalSpendings: { $sum: 1 },
+            spendingCashAmount: {
+              $sum: {
+                $cond: [
+                  { $eq: ['$paymentMode', PAYMENT_MODE.CASH] },
+                  '$amount',
+                  0
+                ]
+              }
+            },
+            spendingUpiAmount: {
+              $sum: {
+                $cond: [
+                  { $eq: ['$paymentMode', PAYMENT_MODE.UPI] },
+                  '$amount',
+                  0
+                ]
+              }
+            },
+            spendingBankAmount: {
+              $sum: {
+                $cond: [
+                  { $eq: ['$paymentMode', PAYMENT_MODE.BANK] },
+                  '$amount',
+                  0
+                ]
+              }
+            }
+          }
+        }
+      ]).toArray()
+
+      const donationData = donationStats[0] || {
+        totalCollected: 0,
+        totalDonations: 0,
+        donorCount: [],
+        cashAmount: 0,
+        upiAmount: 0,
+        bankAmount: 0
+      }
+
+      const spendingData = spendingStats[0] || {
+        totalSpent: 0,
+        totalSpendings: 0,
+        spendingCashAmount: 0,
+        spendingUpiAmount: 0,
+        spendingBankAmount: 0
+      }
+
+      results.push({
+        bhandaraId,
+        bhandaraName: bhandara.name,
+        totalCollected: donationData.totalCollected,
+        totalPending: 0,
+        totalDonations: donationData.totalDonations,
+        donorCount: donationData.donorCount.length,
+        totalSpent: spendingData.totalSpent,
+        totalSpendings: spendingData.totalSpendings,
+        netBalance: donationData.totalCollected - spendingData.totalSpent,
+        paymentModeBreakdown: {
+          cash: donationData.cashAmount,
+          upi: donationData.upiAmount,
+          bank: donationData.bankAmount
+        },
+        spendingModeBreakdown: {
+          cash: spendingData.spendingCashAmount,
+          upi: spendingData.spendingUpiAmount,
+          bank: spendingData.spendingBankAmount
+        }
+      })
+    }
+
+    return results.sort((a, b) => b.totalCollected - a.totalCollected)
   }
 
  
@@ -170,31 +247,15 @@ export async function getBhandaraStatsById(bhandaraId: string): Promise<Bhandara
     return null
   }
 
-  const stats = await db.collection(COLLECTIONS.DONATIONS).aggregate([
+  // Get donation stats
+  const donationStats = await db.collection(COLLECTIONS.DONATIONS).aggregate([
     {
       $match: { bhandara: bhandaraObjectId }
     },
     {
-      $lookup: {
-        from: COLLECTIONS.BHANDARAS,
-        localField: 'bhandara',
-        foreignField: '_id',
-        as: 'bhandaraData'
-      }
-    },
-    {
-      $unwind: {
-        path: '$bhandaraData',
-        preserveNullAndEmptyArrays: false
-      }
-    },
-    {
       $group: {
-        _id: '$bhandara',
-        bhandaraName: { $first: '$bhandaraData.name' },
-        totalCollected: {
-          $sum: '$amount'
-        },
+        _id: null,
+        totalCollected: { $sum: '$amount' },
         totalDonations: { $sum: 1 },
         donorCount: { $addToSet: '$donor' },
         cashAmount: {
@@ -225,51 +286,86 @@ export async function getBhandaraStatsById(bhandaraId: string): Promise<Bhandara
           }
         }
       }
+    }
+  ]).toArray()
+
+  // Get spending stats
+  const spendingStats = await db.collection(COLLECTIONS.BHANDARA_SPENDINGS).aggregate([
+    {
+      $match: { bhandara: bhandaraObjectId }
     },
     {
-      $project: {
-        bhandaraId: { $toString: '$_id' },
-        bhandaraName: 1,
-        totalCollected: 1,
-        totalPending: { $literal: 0 },
-        totalDonations: 1,
-        donorCount: { $size: '$donorCount' },
-        cashAmount: 1,
-        upiAmount: 1,
-        bankAmount: 1
+      $group: {
+        _id: null,
+        totalSpent: { $sum: '$amount' },
+        totalSpendings: { $sum: 1 },
+        spendingCashAmount: {
+          $sum: {
+            $cond: [
+              { $eq: ['$paymentMode', PAYMENT_MODE.CASH] },
+              '$amount',
+              0
+            ]
+          }
+        },
+        spendingUpiAmount: {
+          $sum: {
+            $cond: [
+              { $eq: ['$paymentMode', PAYMENT_MODE.UPI] },
+              '$amount',
+              0
+            ]
+          }
+        },
+        spendingBankAmount: {
+          $sum: {
+            $cond: [
+              { $eq: ['$paymentMode', PAYMENT_MODE.BANK] },
+              '$amount',
+              0
+            ]
+          }
+        }
       }
     }
   ]).toArray()
 
-  // If no donations found, return stats with zeros
-  if (stats.length === 0) {
-    return {
-      bhandaraId,
-      bhandaraName: bhandara.name,
-      totalCollected: 0,
-      totalPending: 0,
-      totalDonations: 0,
-      donorCount: 0,
-      paymentModeBreakdown: {
-        cash: 0,
-        upi: 0,
-        bank: 0
-      }
-    }
+  const donationData = donationStats[0] || {
+    totalCollected: 0,
+    totalDonations: 0,
+    donorCount: [],
+    cashAmount: 0,
+    upiAmount: 0,
+    bankAmount: 0
   }
 
-  const stat = stats[0]
+  const spendingData = spendingStats[0] || {
+    totalSpent: 0,
+    totalSpendings: 0,
+    spendingCashAmount: 0,
+    spendingUpiAmount: 0,
+    spendingBankAmount: 0
+  }
+
   return {
     bhandaraId,
-    bhandaraName: stat.bhandaraName,
-    totalCollected: stat.totalCollected,
-    totalPending: stat.totalPending || 0,
-    totalDonations: stat.totalDonations,
-    donorCount: stat.donorCount,
+    bhandaraName: bhandara.name,
+    totalCollected: donationData.totalCollected,
+    totalPending: 0,
+    totalDonations: donationData.totalDonations,
+    donorCount: donationData.donorCount.length,
+    totalSpent: spendingData.totalSpent,
+    totalSpendings: spendingData.totalSpendings,
+    netBalance: donationData.totalCollected - spendingData.totalSpent,
     paymentModeBreakdown: {
-      cash: stat.cashAmount || 0,
-      upi: stat.upiAmount || 0,
-      bank: stat.bankAmount || 0
+      cash: donationData.cashAmount,
+      upi: donationData.upiAmount,
+      bank: donationData.bankAmount
+    },
+    spendingModeBreakdown: {
+      cash: spendingData.spendingCashAmount,
+      upi: spendingData.spendingUpiAmount,
+      bank: spendingData.spendingBankAmount
     }
   }
 }

@@ -37,7 +37,7 @@ export default function DonorCard({
           px-3 py-2
           transition
           ${isLocked
-            ? 'cursor-not-allowed opacity-60 border-gray-200'
+            ? 'cursor-not-allowed opacity-60 border-gray-100'
             : 'active:scale-[0.98] cursor-pointer hover:border-blue-300 hover:shadow-md'}
         `}
       >
