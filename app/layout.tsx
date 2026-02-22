@@ -26,7 +26,7 @@ export default async function RootLayout({
 }) {
   return (
     <html lang="en" className="hide-scrollbar">
-      <body className="hide-scrollbar">
+      <body className="hide-scrollbar bg-gradient-to-br from-gray-50 to-gray-100">
         <NextTopLoader
           color="#f97316"
           initialPosition={0.08}
@@ -43,7 +43,7 @@ export default async function RootLayout({
           <Suspense fallback={<div>Loading...</div>}>
             <Header />
           </Suspense>
-          <main className="w-full h-full flex-1 pt-16 overflow-y-auto hide-scrollbar [scrollbar-width:none] [-ms-overflow-style:none]">
+          <main className="w-full h-full flex-1 pt-16 overflow-y-auto hide-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] ">
             {children}
           </main>
           <Toaster />

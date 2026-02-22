@@ -48,7 +48,7 @@ export default async function BhandaraDetailPage({ params }: { params: { id: str
 
   return (
     <div className="h-full bg-gradient-to-br from-gray-50 to-gray-100 px-4 py-3 sm:py-4">
-      <div className="max-w-6xl mx-auto space-y-2 sm:space-y-4">
+      <div className="max-w-6xl mx-auto space-y-2 sm:space-y-4 bg-gradient-to-br from-gray-50 to-gray-100">
         {/* Header */}
         <div className="">
           <Link

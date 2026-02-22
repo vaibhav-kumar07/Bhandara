@@ -26,7 +26,7 @@ export default function SpendingSection({ bhandaraSpendings, allSpendingItems, b
 
   const handleDeleteClick = (bhandaraSpendingId: string) => {
     if (isDeleting) return
-    
+
     const spending = bhandaraSpendings.find(s => s.id === bhandaraSpendingId)
     if (spending) {
       setSpendingToDelete(spending)
@@ -37,7 +37,7 @@ export default function SpendingSection({ bhandaraSpendings, allSpendingItems, b
     if (!spendingToDelete || isDeleting) return
 
     setIsDeleting(spendingToDelete.id)
-    
+
     try {
       const result = await deleteBhandaraSpending(spendingToDelete.id)
       if (result.success) {
@@ -91,7 +91,7 @@ export default function SpendingSection({ bhandaraSpendings, allSpendingItems, b
           <p className="text-gray-600">No spending items available. Add spending items first.</p>
         </div>
       ) : (
-        <div className="max-h-[60vh] sm:max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-2 sm:gap-3 pr-2">
+        <div className="max-h-[60vh] sm:max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-2 sm:gap-3 pr-2 pb-3">
           {allSpendingItems.map((spendingItem, index) => {
             const bhandaraSpending = bhandaraSpendingMap.get(spendingItem.id)
             return (
