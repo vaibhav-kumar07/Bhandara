@@ -209,8 +209,12 @@ export class BhandaraSpendingService {
   }
 
   private static formatBhandaraSpendingResponse(bhandaraSpending: any): BhandaraSpendingResponse {
-    const bhandaraDate = bhandaraSpending.bhandaraData.date.toISOString().split('T')[0]
-    const isBhandaraDateLocked = isBhandaraLocked(bhandaraSpending.bhandaraData.date)
+    const bhandaraDate = bhandaraSpending.bhandaraData?.date ? 
+      bhandaraSpending.bhandaraData.date.toISOString().split('T')[0] : 
+      new Date().toISOString().split('T')[0]
+    const isBhandaraDateLocked = bhandaraSpending.bhandaraData?.date ? 
+      isBhandaraLocked(bhandaraSpending.bhandaraData.date) : 
+      false
     
     return {
       id: bhandaraSpending._id.toString(),
@@ -227,15 +231,15 @@ export class BhandaraSpendingService {
       },
       amount: bhandaraSpending.amount,
       paymentMode: bhandaraSpending.paymentMode,
-      date: bhandaraSpending.date.toISOString().split('T')[0],
+      date: bhandaraSpending.date ? bhandaraSpending.date.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
       note: bhandaraSpending.note,
       admin: {
         id: bhandaraSpending.adminData._id.toString(),
         username: bhandaraSpending.adminData.username
       },
       isLocked: bhandaraSpending.isLocked,
-      createdAt: bhandaraSpending.createdAt.toISOString(),
-      updatedAt: bhandaraSpending.updatedAt.toISOString()
+      createdAt: bhandaraSpending.createdAt ? bhandaraSpending.createdAt.toISOString() : new Date().toISOString(),
+      updatedAt: bhandaraSpending.updatedAt ? bhandaraSpending.updatedAt.toISOString() : new Date().toISOString()
     }
   }
 }

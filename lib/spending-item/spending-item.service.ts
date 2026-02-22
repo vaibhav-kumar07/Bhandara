@@ -120,8 +120,8 @@ export class SpendingItemService {
       id: spendingItem._id.toString(),
       name: spendingItem.name,
       description: spendingItem.description,
-      createdAt: spendingItem.createdAt.toISOString(),
-      updatedAt: spendingItem.updatedAt.toISOString()
+      createdAt: spendingItem.createdAt ? spendingItem.createdAt.toISOString() : new Date().toISOString(),
+      updatedAt: spendingItem.updatedAt ? spendingItem.updatedAt.toISOString() : new Date().toISOString()
     }
   }
 }

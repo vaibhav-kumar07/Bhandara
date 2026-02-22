@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import SpendingItemCard from './SpendingItemCard'
 import AddSpendingButton from './AddSpendingButton'
+import UploadSpendingExcelButton from './UploadSpendingExcelButton'
 import DeleteSpendingModal from './DeleteSpendingModal'
 import { BhandaraSpendingResponse } from '@/lib/bhandara-spending/bhandara-spending.types'
 import { SpendingItemResponse } from '@/lib/spending-item/spending-item.types'
@@ -15,9 +16,10 @@ interface SpendingSectionProps {
   bhandaraId: string
   isLocked: boolean
   showHeader?: boolean
+  uploadButtonActive?: boolean
 }
 
-export default function SpendingSection({ bhandaraSpendings, allSpendingItems, bhandaraId, isLocked, showHeader = true }: SpendingSectionProps) {
+export default function SpendingSection({ bhandaraSpendings, allSpendingItems, bhandaraId, isLocked, showHeader = true, uploadButtonActive = false }: SpendingSectionProps) {
   const router = useRouter()
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
   const [spendingToDelete, setSpendingToDelete] = useState<BhandaraSpendingResponse | null>(null)
@@ -71,8 +73,15 @@ export default function SpendingSection({ bhandaraSpendings, allSpendingItems, b
         <div className="w-full flex items-center justify-between flex-wrap gap-2.5 mb-2">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900">Spending</h3>
           {!isLocked && (
-            <div className="flex-1 sm:flex-initial">
-              <AddSpendingButton bhandaraId={bhandaraId} />
+            <div className="flex flex-wrap gap-2.5 sm:w-auto w-full">
+              {uploadButtonActive && (
+                <div className="flex-1 sm:flex-initial">
+                  <UploadSpendingExcelButton bhandaraId={bhandaraId} isLocked={isLocked} />
+                </div>
+              )}
+              <div className="flex-1 sm:flex-initial">
+                <AddSpendingButton bhandaraId={bhandaraId} />
+              </div>
             </div>
           )}
         </div>

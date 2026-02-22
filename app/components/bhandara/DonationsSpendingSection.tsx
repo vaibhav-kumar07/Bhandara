@@ -5,6 +5,7 @@ import AddDonorDonation from './AddDonorDonation'
 import UploadExcelButton from './UploadExcelButton'
 import SpendingSection from '../spending/SpendingSection'
 import AddSpendingButton from '../spending/AddSpendingButton'
+import UploadSpendingExcelButton from '../spending/UploadSpendingExcelButton'
 import { DonationResponse } from '@/lib/donation/donation.types'
 import { DonorResponse } from '@/lib/donor/donor.types'
 import { BhandaraSpendingResponse } from '@/lib/bhandara-spending/bhandara-spending.types'
@@ -76,9 +77,16 @@ export default function DonationsSpendingSection({
                 </div>
               </>
             ) : (
-              <div className="flex-1 sm:flex-initial">
-                <AddSpendingButton bhandaraId={bhandara.id} />
-              </div>
+              <>
+                {uploadbuttonActive && (
+                  <div className="flex-1 sm:flex-initial">
+                    <UploadSpendingExcelButton bhandaraId={bhandara.id} isLocked={bhandara.isLocked || false} />
+                  </div>
+                )}
+                <div className="flex-1 sm:flex-initial">
+                  <AddSpendingButton bhandaraId={bhandara.id} />
+                </div>
+              </>
             )}
           </div>
         )}
@@ -118,6 +126,7 @@ export default function DonationsSpendingSection({
           bhandaraId={bhandara.id}
           isLocked={bhandara.isLocked || false}
           showHeader={false}
+          uploadButtonActive={uploadbuttonActive}
         />
       )}
     </div>

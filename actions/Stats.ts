@@ -1,11 +1,11 @@
 'use server'
-import { connectToDatabase,  } from "@/lib/shared/db"
-import { StatsService } from "@/lib/stats/stats.service"
+import { connectToDatabase } from "@/lib/shared/db"
+import { getStats } from "@/lib/stats/stats.service"
 
 export async function getOverallStats(){
   try {
     await connectToDatabase()
-    const stats = await StatsService.getStats()
+    const stats = await getStats()
     return stats
   } catch (error) {
     console.error('GET /api/stats error:', error)
@@ -13,6 +13,5 @@ export async function getOverallStats(){
       success: false,
       error: 'Failed to fetch stats'
     }
-    
   }
 }
